@@ -1,8 +1,11 @@
 const CACHE = 'energytrack-v1';
+const BASE = '/Energytrack/';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  BASE,
+  BASE + 'index.html',
+  BASE + 'manifest.json',
+  BASE + 'icons/icon-192.png',
+  BASE + 'icons/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
