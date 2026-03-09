@@ -195,7 +195,7 @@
       .bnbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;border:none;background:none;color:var(--text2);font-size:.62rem;font-weight:500;font-family:var(--sans);cursor:pointer;transition:color .2s}
       .bnbtn.active{color:var(--accent)}
       .bnbtn .ni{font-size:19px}
-      main{padding-bottom:78px}
+
     }
     @media(min-width:601px){.bnav{display:none}}
 
@@ -204,9 +204,9 @@
 
     /* ── HAMBURGER MENU ── */
     .hmenu-wrap{position:relative;}
-    .hmenu{position:fixed;top:60px;right:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:500;min-width:200px;overflow:hidden;display:none;animation:mIn .2s ease;}
+    .hmenu{position:fixed;top:60px;right:12px;left:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:500;overflow:hidden;display:none;animation:mIn .2s ease;}
     .hmenu.open{display:block;}
-    .hmenu-item{display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:.95rem;font-weight:500;color:var(--text);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--sans);transition:background .15s;border-bottom:1px solid var(--border);}
+    .hmenu-item{display:flex;align-items:center;gap:14px;padding:17px 22px;font-size:1.05rem;font-weight:500;color:var(--text);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--sans);transition:background .15s;border-bottom:1px solid var(--border);}
     .hmenu-item:last-child{border-bottom:none;}
     .hmenu-item:hover{background:var(--surface2);}
     .hmenu-item:active{background:var(--border);}
@@ -384,7 +384,7 @@
           <option value="10">Listopad</option><option value="11">Studeni</option><option value="12">Prosinac</option>
         </select></div>
       </div>
-      <div class="fg"><label class="fl">Ukupni iznos računa (EUR)</label><input type="number" class="fi" id="i-amount" placeholder="npr. 450.00" step="0.01" /></div>
+      <div class="fg"><label class="fl">Ukupni iznos računa (EUR)</label><input type="number" class="fi" id="i-amount" placeholder="npr. 450.00" step="0.01" inputmode="decimal" /></div>
       <div class="fg"><label class="fl">Broj računa (opcionalno)</label><input type="text" class="fi" id="i-number" placeholder="npr. 2024-001" /></div>
       <div class="fg"><label class="fl">Napomena (opcionalno)</label><input type="text" class="fi" id="i-note" placeholder="Posebna napomena..." /></div>
       <div id="existing-invoice-note"></div>
@@ -472,13 +472,7 @@
 
 </main>
 
-<nav class="bnav">
-  <button class="bnbtn active" onclick="showPage('dashboard')" data-page="dashboard"><span class="ni">📊</span>Ploča</button>
-  <button class="bnbtn" onclick="showPage('readings')" data-page="readings"><span class="ni">📟</span>Unos</button>
-  <button class="bnbtn" onclick="showPage('invoice')" data-page="invoice"><span class="ni">🧾</span>Račun</button>
-  <button class="bnbtn" onclick="showPage('history')" data-page="history"><span class="ni">📅</span>Povijest</button>
-  <button class="bnbtn" onclick="showPage('settings')" data-page="settings"><span class="ni">⚙️</span>Postavke</button>
-</nav>
+
 
 <div class="mo" id="clear-modal">
   <div class="mbox">
@@ -634,7 +628,7 @@ function buildReadingForm(){
       <label class="fl" style="display:flex;align-items:center;gap:7px">
         <span style="width:11px;height:11px;border-radius:50%;background:${COLORS[i]};display:inline-block;flex-shrink:0"></span>${s}
       </label>
-      <input type="number" class="fi" id="sr-${i}" placeholder="Stanje mjerila (kWh)" oninput="validateR()" />
+      <input type="number" class="fi" id="sr-${i}" placeholder="Stanje mjerila (kWh)" inputmode="decimal" oninput="validateR()" />
     </div>`).join('');
 }
 
