@@ -292,8 +292,7 @@
     <!-- Hamburger dropdown -->
     <div class="hmenu" id="hmenu">
       <button class="hmenu-item" onclick="closeHMenu();showPage('dashboard')">📊 Nadzorna ploča</button>
-      <button class="hmenu-item" onclick="closeHMenu();showPage('readings')">📟 Unos stanja</button>
-      <button class="hmenu-item" onclick="closeHMenu();showPage('invoice')">🧾 Račun</button>
+      <button class="hmenu-item" onclick="closeHMenu();showPage('readings')">📟 Unos</button>
       <button class="hmenu-item" onclick="closeHMenu();showPage('history')">📅 Povijest</button>
       <button class="hmenu-item" onclick="closeHMenu();showPage('settings')">⚙️ Postavke</button>
       <button class="hmenu-item" id="hmenu-theme" onclick="toggleTheme()">🌙 Tamni način</button>
@@ -304,8 +303,7 @@
 <nav class="ntabs">
   <div class="nti">
     <button class="tbtn active" onclick="showPage('dashboard')" data-page="dashboard">📊 Nadzorna ploča</button>
-    <button class="tbtn" onclick="showPage('readings')" data-page="readings">📟 Unos stanja</button>
-    <button class="tbtn" onclick="showPage('invoice')" data-page="invoice">🧾 Račun</button>
+    <button class="tbtn" onclick="showPage('readings')" data-page="readings">📟 Unos</button>
     <button class="tbtn" onclick="showPage('history')" data-page="history">📅 Povijest</button>
     <button class="tbtn" onclick="showPage('settings')" data-page="settings">⚙️ Postavke</button>
   </div>
@@ -352,51 +350,46 @@
 
   <!-- READINGS -->
   <div class="page" id="page-readings">
-    <div class="sh"><h1 class="stitle">Unos stanja mjerila</h1></div>
-    <div class="card mb24">
-      <div class="g2 mb16" style="gap:11px">
-        <div class="fg" style="margin:0"><label class="fl">Godina</label><select class="fi" id="r-year"></select></div>
-        <div class="fg" style="margin:0"><label class="fl">Mjesec</label><select class="fi" id="r-month" onchange="loadExistingReading()">
+    <div class="sh"><h1 class="stitle">Unos</h1></div>
+
+    <!-- Odabir perioda - dijeli se između stanja i računa -->
+    <div class="card mb16">
+      <div class="g2" style="gap:11px">
+        <div class="fg" style="margin:0"><label class="fl">Godina</label><select class="fi" id="r-year" onchange="loadExistingReading();syncInvoiceSelects()"></select></div>
+        <div class="fg" style="margin:0"><label class="fl">Mjesec</label><select class="fi" id="r-month" onchange="loadExistingReading();syncInvoiceSelects()">
           <option value="1">Siječanj</option><option value="2">Veljača</option><option value="3">Ožujak</option>
           <option value="4">Travanj</option><option value="5">Svibanj</option><option value="6">Lipanj</option>
           <option value="7">Srpanj</option><option value="8">Kolovoz</option><option value="9">Rujan</option>
           <option value="10">Listopad</option><option value="11">Studeni</option><option value="12">Prosinac</option>
         </select></div>
-      </div>
-      <div id="existing-reading-note"></div>
-      <div class="div"></div>
-      <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px;color:var(--text2)">⚡ Stanja poslovnih prostora</h3>
-      <div id="space-rf"></div>
-
-      <div class="mt24" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-p" onclick="saveReadings()">💾 Spremi stanja</button>
-        <button class="btn btn-d" id="btn-delete-reading" style="display:none" onclick="deleteReading()">🗑️ Obriši unos</button>
       </div>
     </div>
-  </div>
 
-  <!-- INVOICE -->
-  <div class="page" id="page-invoice">
-    <div class="sh"><h1 class="stitle">Unos računa</h1></div>
-    <div class="card mb24">
-      <div class="g2 mb16" style="gap:11px">
-        <div class="fg" style="margin:0"><label class="fl">Godina</label><select class="fi" id="i-year" onchange="renderInvoiceP()"></select></div>
-        <div class="fg" style="margin:0"><label class="fl">Mjesec</label><select class="fi" id="i-month" onchange="renderInvoiceP()">
-          <option value="1">Siječanj</option><option value="2">Veljača</option><option value="3">Ožujak</option>
-          <option value="4">Travanj</option><option value="5">Svibanj</option><option value="6">Lipanj</option>
-          <option value="7">Srpanj</option><option value="8">Kolovoz</option><option value="9">Rujan</option>
-          <option value="10">Listopad</option><option value="11">Studeni</option><option value="12">Prosinac</option>
-        </select></div>
+    <!-- Stanja mjerila -->
+    <div class="card mb16">
+      <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px;color:var(--text2)">⚡ Stanja poslovnih prostora</h3>
+      <div id="existing-reading-note"></div>
+      <div id="space-rf"></div>
+      <div class="mt16" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-p" onclick="saveReadings()">💾 Spremi stanja</button>
+        <button class="btn btn-d" id="btn-delete-reading" style="display:none" onclick="deleteReading()">🗑️ Obriši</button>
       </div>
-      <div class="fg"><label class="fl">Ukupni iznos računa (EUR)</label><input type="number" class="fi" id="i-amount" placeholder="npr. 450.00" step="0.01" inputmode="decimal" /></div>
+    </div>
+
+    <!-- Račun -->
+    <div class="card mb16">
+      <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px;color:var(--text2)">🧾 Račun za odabrani period</h3>
+      <div id="existing-invoice-note"></div>
+      <div class="fg"><label class="fl">Ukupni iznos računa (EUR)</label><input type="number" class="fi" id="i-amount" placeholder="npr. 450.00 — unesi kad stigne račun" step="0.01" inputmode="decimal" /></div>
       <div class="fg"><label class="fl">Broj računa (opcionalno)</label><input type="text" class="fi" id="i-number" placeholder="npr. 2024-001" /></div>
       <div class="fg"><label class="fl">Napomena (opcionalno)</label><input type="text" class="fi" id="i-note" placeholder="Posebna napomena..." /></div>
-      <div id="existing-invoice-note"></div>
-      <div class="mt16" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <div class="mt8" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <button class="btn btn-p" onclick="saveInvoice()">💾 Spremi račun</button>
-        <button class="btn btn-d" id="btn-delete-invoice" style="display:none" onclick="deleteInvoice()">🗑️ Obriši račun</button>
+        <button class="btn btn-d" id="btn-delete-invoice" style="display:none" onclick="deleteInvoice()">🗑️ Obriši</button>
       </div>
     </div>
+
+    <!-- Preview raspodjele -->
     <div class="card" id="inv-preview" style="display:none">
       <div class="sh" style="margin-bottom:14px">
         <h3 style="font-size:.95rem;font-weight:700">📋 Raspodjela troškova</h3>
@@ -405,6 +398,18 @@
       <div id="inv-preview-content"></div>
     </div>
   </div>
+
+  <!-- INVOICE page preusmjereno na readings -->
+  <div class="page" id="page-invoice" style="display:none!important"></div>
+
+  <!-- Skriveni invoice selects - sinkronizirani s glavnim odabirom -->
+  <select id="i-year" style="display:none"></select>
+  <select id="i-month" style="display:none">
+    <option value="1">Siječanj</option><option value="2">Veljača</option><option value="3">Ožujak</option>
+    <option value="4">Travanj</option><option value="5">Svibanj</option><option value="6">Lipanj</option>
+    <option value="7">Srpanj</option><option value="8">Kolovoz</option><option value="9">Rujan</option>
+    <option value="10">Listopad</option><option value="11">Studeni</option><option value="12">Prosinac</option>
+  </select>
 
   <!-- HISTORY -->
   <div class="page" id="page-history">
@@ -608,6 +613,9 @@ function showPage(n){
   document.getElementById('page-'+n).classList.add('active');
   document.querySelectorAll('[data-page="'+n+'"]').forEach(b=>b.classList.add('active'));
   if(n==='dashboard')renderDashboard();
+  // Sinkroniziraj skrivene invoice selecte
+  const iy2=document.getElementById('i-year');
+  if(iy2&&document.getElementById('r-year'))iy2.value=document.getElementById('r-year').value;
   if(n==='history')renderHistory();
   if(n==='invoice')renderInvoiceP();
 }
@@ -636,13 +644,23 @@ function buildReadingForm(){
     </div>`).join('');
 }
 
+function syncInvoiceSelects(){
+  const y=document.getElementById('r-year').value;
+  const m=document.getElementById('r-month').value;
+  const iy=document.getElementById('i-year');
+  const im=document.getElementById('i-month');
+  if(iy)iy.value=y;
+  if(im)im.value=m;
+  renderInvoiceP();
+}
+
 function loadExistingReading(){
   const key=`${document.getElementById('r-year').value}-${document.getElementById('r-month').value}`;
   const r=S.readings[key];
   const note=document.getElementById('existing-reading-note');
   const delBtn=document.getElementById('btn-delete-reading');
   if(r){
-    note.innerHTML=`<div class="al al-i">📝 Postoje unesena stanja za ovaj period. Spremanjem će biti prepisana.</div>`;
+    note.innerHTML=`<div class="al al-i mb12">📝 Postoje unesena stanja za ovaj period. Spremanjem će biti prepisana.</div>`;
     S.spaces.forEach((_,i)=>{const el=document.getElementById('sr-'+i);if(el)el.value=r.spaces[i]||'';});
     if(delBtn)delBtn.style.display='inline-flex';
   } else {
@@ -650,6 +668,7 @@ function loadExistingReading(){
     S.spaces.forEach((_,i)=>{const el=document.getElementById('sr-'+i);if(el)el.value='';});
     if(delBtn)delBtn.style.display='none';
   }
+  syncInvoiceSelects();
 }
 
 function validateR(){
@@ -703,12 +722,7 @@ function saveInvoice(){
   const amount=parseFloat(document.getElementById('i-amount').value);
   const key=`${y}-${m}`;
   if(!amount||isNaN(amount)){toast('⚠️ Unesi iznos računa','w');return;}
-  if(!S.readings[key]){toast('⚠️ Unesi stanja mjerila za ovaj period','w');return;}
-  if(!canCalcCons(key)){
-    const[ky,km]=key.split('-').map(Number);
-    let nm=km+1,ny=ky; if(nm>12){nm=1;ny++;}
-    toast(`⚠️ Unesi stanja za ${MONTHS[nm]} ${ny} da zatvoriš period`,'w');return;
-  }
+  // Stanja nisu obavezna za unos računa - može se unijeti i bez njih
   S.invoices[key]={amount,number:document.getElementById('i-number').value,note:document.getElementById('i-note').value,savedAt:new Date().toISOString()};
   saveLS();toast('✅ Račun je spremljen!');
   renderInvoiceP();renderHistory();
@@ -833,7 +847,7 @@ function renderDashboard(){
     let nm2=m+1,ny2=y; if(nm2>12){nm2=1;ny2++;}
     al.innerHTML=`<div class="al al-w mb16">⚠️ Stanja za ${MONTHS[m]} ${y} su unesena. Za izračun potrošnje unesi stanja za <strong>${MONTHS[nm2]} ${ny2}</strong>. <a href="#" onclick="showPage('readings')" style="color:inherit;font-weight:700">Unesi →</a></div>`;
   } else if(!inv){
-    al.innerHTML=`<div class="al al-w mb16">⚠️ Potrošnja izračunata, ali račun za ${MONTHS[m]} ${y} nije unesen. <a href="#" onclick="showPage('invoice')" style="color:inherit;font-weight:700">Unesi račun →</a></div>`;
+    al.innerHTML=`<div class="al al-w mb16">⚠️ Potrošnja izračunata, ali račun za ${MONTHS[m]} ${y} nije unesen. <a href="#" onclick="showPage('readings')" style="color:inherit;font-weight:700">Unesi račun →</a></div>`;
   } else {
     al.innerHTML='';
   }
