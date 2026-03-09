@@ -1,5 +1,11 @@
 {
   "readings": {},
   "invoices": {},
-  "spaces": ["NEVENA", "MAGIS LUX", "BRESKVICA", "FRIZKOTEKA", "STUDIO 04"]
+  "spaces": [
+    "NEVENA",
+    "MAGIS LUX",
+    "BRESKVICA",
+    "FRIZKOTEKA",
+    "STUDIO 04"
+  ]
 }
