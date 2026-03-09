@@ -200,6 +200,21 @@
     @media(min-width:601px){.bnav{display:none}}
 
     .hl{border-left:4px solid var(--accent)}
+
+    /* ── MOBILE ONLY ── */
+    @media(max-width:600px){
+      /* Sakrij Prosječno po prostoru karticu */
+      #kpi-avg-card{display:none!important;}
+      /* Povećaj odabir mjeseca i gumb Unos */
+      .msel select{font-size:1rem;}
+      .msel{padding:7px 13px;}
+      .btn-p.bsm{font-size:.95rem;padding:9px 16px;}
+      /* Sakrij Izvezi JSON u povijesti */
+      .hist-json-btn{display:none!important;}
+      /* Sakrij Podaci i Upute kartice u postavkama */
+      .settings-data-card{display:none!important;}
+      .settings-upute-card{display:none!important;}
+    }
     .spin{width:16px;height:16px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
     input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
     input[type=number]{-moz-appearance:textfield;appearance:textfield}
@@ -211,7 +226,7 @@
 
 <header>
   <div class="hi">
-    <a href="#" class="logo">
+    <a href="#" class="logo" onclick="showPage('dashboard')">
       <div class="logo-icon">⚡</div>EnergyTrack
     </a>
     <div class="hactions">
@@ -254,7 +269,7 @@
         <div class="cval" id="kpi-eur">—</div>
         <div class="csub">EUR za plaćanje</div>
       </div>
-      <div class="card">
+      <div class="card" id="kpi-avg-card">
         <div class="ctitle">Prosječno po prostoru</div>
         <div class="cval" id="kpi-avg">—</div>
         <div class="csub">kWh po prostoru</div>
@@ -330,7 +345,7 @@
   <div class="page" id="page-history">
     <div class="sh">
       <h1 class="stitle">Povijest</h1>
-      <button class="btn btn-s bsm" onclick="exportAllJSON()">📤 Izvezi JSON</button>
+      <button class="btn btn-s bsm hist-json-btn" onclick="exportAllJSON()">📤 Izvezi JSON</button>
     </div>
     <div class="card">
       <div class="tw">
@@ -372,7 +387,7 @@
       <div id="spaces-cfg"></div>
       <button class="btn btn-p mt16" onclick="saveSpaces()">💾 Spremi nazive</button>
     </div>
-    <div class="card mb24">
+    <div class="card mb24 settings-data-card">
       <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">💾 Podaci</h3>
       <p style="font-size:.85rem;color:var(--text2);margin-bottom:18px">Izvoz, uvoz i brisanje podataka.</p>
       <div style="display:flex;gap:9px;flex-wrap:wrap">
@@ -382,7 +397,7 @@
         <button class="btn btn-d" onclick="openClearModal()">🗑️ Obriši sve</button>
       </div>
     </div>
-    <div class="card">
+    <div class="card settings-upute-card">
       <h3 style="font-size:.95rem;font-weight:700;margin-bottom:12px">ℹ️ Upute</h3>
       <div style="font-size:.85rem;color:var(--text2);line-height:1.8">
         <p><strong style="color:var(--text)">1. Unos stanja (1. u mjesecu)</strong> → "Unos stanja" → unesi stanja svih 6 mjerila</p>
