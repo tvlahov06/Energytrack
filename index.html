@@ -278,7 +278,7 @@
       <div class="logo-icon">⚡</div>EnergyTrack
     </a>
     <div class="hactions">
-      <button class="ibtn" id="btn-sync" title="Spremi na GitHub" onclick="syncToGitHub()">☁️</button>
+      <button class="ibtn" id="btn-sync" onclick="syncToGitHub()" style="width:auto;padding:0 12px;font-size:.78rem;font-weight:700;gap:5px;white-space:nowrap">☁️ Sinkroniziraj</button>
       <button class="ibtn ibtn-theme-desktop" id="btn-theme" title="Promijeni temu" onclick="toggleTheme()">🌙</button>
       <div class="hmenu-wrap">
         <button class="ibtn ibtn-hamburger" id="btn-hamburger" title="Izbornik" onclick="toggleHMenu()" style="font-size:22px;font-weight:700;letter-spacing:-1px;width:48px">≡</button>
@@ -843,9 +843,9 @@ function renderDashboard(){
     sc.innerHTML=S.spaces.map((n,i)=>`
       <div class="sc" style="${inv?'cursor:pointer;':''}" ${inv?`onclick="exportPDFSingle('${key}',${i})" title="Klikni za PDF račun"`:''}>>
         <div class="sch" style="margin-bottom:10px">
-          <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
             <div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:${COLORS[i]}"></div><span class="sn">${n}</span></div>
-            ${inv?`<span style="font-size:.7rem;color:${COLORS[i]};font-weight:600;opacity:.7">📄 PDF</span>`:''}
+            ${inv?`<span style="font-size:.72rem;color:${COLORS[i]};font-weight:700;opacity:.85;margin-left:auto;padding-left:8px;white-space:nowrap">📄 PDF</span>`:''}
           </div>
         </div>
         <div style="font-family:var(--mono);font-size:2.6rem;font-weight:700;color:${COLORS[i]};line-height:1;margin-bottom:8px">${cons.pct[i].toFixed(1)}<span style="font-size:1.1rem;font-weight:400">%</span></div>
@@ -1060,7 +1060,7 @@ async function testGH(){
 async function syncToGitHub(){
   const{token,owner,repo,path}=S.github;
   if(!token||!owner||!repo){toast('⚠️ Postavi GitHub konfiguraciju u Postavkama','w');return;}
-  const btn=document.getElementById('btn-sync');btn.textContent='⏳';
+  const btn=document.getElementById('btn-sync');btn.innerHTML='⏳ Sinkronizacija...';
   const content=btoa(unescape(encodeURIComponent(JSON.stringify({readings:S.readings,invoices:S.invoices,spaces:S.spaces},null,2))));
   try{
     let sha='';
@@ -1072,7 +1072,7 @@ async function syncToGitHub(){
     });
     toast(pr.ok?'☁️ Sinkronizirano s GitHub-om!':'❌ Greška pri sinkronizaciji',pr.ok?'s':'e');
   }catch{toast('❌ Mrežna greška','e');}
-  btn.textContent='☁️';
+  btn.innerHTML='☁️ Sinkroniziraj';
 }
 
 async function loadFromGH(){
