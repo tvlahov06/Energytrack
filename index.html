@@ -201,6 +201,28 @@
 
     .hl{border-left:4px solid var(--accent)}
 
+
+    /* ── HAMBURGER MENU ── */
+    .hmenu-wrap{position:relative;}
+    .hmenu{position:fixed;top:60px;right:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:500;min-width:200px;overflow:hidden;display:none;animation:mIn .2s ease;}
+    .hmenu.open{display:block;}
+    .hmenu-item{display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:.95rem;font-weight:500;color:var(--text);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--sans);transition:background .15s;border-bottom:1px solid var(--border);}
+    .hmenu-item:last-child{border-bottom:none;}
+    .hmenu-item:hover{background:var(--surface2);}
+    .hmenu-item:active{background:var(--border);}
+    .hmenu-divider{height:1px;background:var(--border);}
+    .hmenu-overlay{position:fixed;inset:0;z-index:499;display:none;}
+    .hmenu-overlay.open{display:block;}
+    /* Desktop: sakrij hamburger, prikaži stare gumbe */
+    @media(min-width:601px){
+      .ibtn-hamburger{display:none!important;}
+      .ibtn-theme-desktop{display:flex!important;}
+    }
+    /* Mobitel: sakrij desktop theme btn, prikaži hamburger */
+    @media(max-width:600px){
+      .ibtn-theme-desktop{display:none!important;}
+      .ibtn-hamburger{display:flex!important;}
+    }
     /* ── MOBILE ONLY ── */
     @media(max-width:600px){
       /* Sakrij Prosječno po prostoru karticu */
@@ -257,7 +279,20 @@
     </a>
     <div class="hactions">
       <button class="ibtn" id="btn-sync" title="Spremi na GitHub" onclick="syncToGitHub()">☁️</button>
-      <button class="ibtn" id="btn-theme" title="Promijeni temu" onclick="toggleTheme()">🌙</button>
+      <button class="ibtn ibtn-theme-desktop" id="btn-theme" title="Promijeni temu" onclick="toggleTheme()">🌙</button>
+      <div class="hmenu-wrap">
+        <button class="ibtn ibtn-hamburger" id="btn-hamburger" title="Izbornik" onclick="toggleHMenu()" style="font-size:20px;font-weight:700;letter-spacing:-1px">≡</button>
+      </div>
+    </div>
+    <!-- Hamburger overlay -->
+    <div class="hmenu-overlay" id="hmenu-overlay" onclick="closeHMenu()"></div>
+    <!-- Hamburger dropdown -->
+    <div class="hmenu" id="hmenu">
+      <button class="hmenu-item" onclick="closeHMenu();showPage('readings')">📟 Unos stanja</button>
+      <button class="hmenu-item" onclick="closeHMenu();showPage('invoice')">🧾 Račun</button>
+      <button class="hmenu-item" onclick="closeHMenu();showPage('history')">📅 Povijest</button>
+      <button class="hmenu-item" onclick="closeHMenu();showPage('settings')">⚙️ Postavke</button>
+      <button class="hmenu-item" id="hmenu-theme" onclick="toggleTheme()">🌙 Tamni način</button>
     </div>
   </div>
 </header>
@@ -467,6 +502,18 @@ let S = {
   github:{token:'',owner:'',repo:'',path:'data/energytrack.json'}
 };
 
+
+// ── HAMBURGER MENU ──────────────────────────────
+function toggleHMenu(){
+  const m=document.getElementById('hmenu');
+  const o=document.getElementById('hmenu-overlay');
+  const open=m.classList.toggle('open');
+  o.classList.toggle('open', open);
+}
+function closeHMenu(){
+  document.getElementById('hmenu').classList.remove('open');
+  document.getElementById('hmenu-overlay').classList.remove('open');
+}
 // ── INIT ──────────────────────────────────────
 function init(){
   loadLS();
@@ -479,7 +526,10 @@ function init(){
   renderHistory();
   const t=localStorage.getItem('et-theme')||'light';
   document.documentElement.setAttribute('data-theme',t);
-  document.getElementById('btn-theme').textContent=t==='dark'?'☀️':'🌙';
+  const isDarkInit=t==='dark';
+  document.getElementById('btn-theme').textContent=isDarkInit?'☀️':'🌙';
+  const hmenuThemeInit=document.getElementById('hmenu-theme');
+  if(hmenuThemeInit)hmenuThemeInit.textContent=isDarkInit?'☀️ Svijetli način':'🌙 Tamni način';
 }
 
 // Siječanj 2026 = prvi obračunski period
@@ -569,7 +619,11 @@ function toggleTheme(){
   const c=document.documentElement.getAttribute('data-theme')||'light';
   const n=c==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',n);
-  document.getElementById('btn-theme').textContent=n==='dark'?'☀️':'🌙';
+  const isDark=n==='dark';
+  const themeBtn=document.getElementById('btn-theme');
+  const hmenuTheme=document.getElementById('hmenu-theme');
+  if(themeBtn)themeBtn.textContent=isDark?'☀️':'🌙';
+  if(hmenuTheme)hmenuTheme.textContent=isDark?'☀️ Svijetli način':'🌙 Tamni način';
   localStorage.setItem('et-theme',n);
 }
 
