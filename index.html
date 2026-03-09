@@ -841,7 +841,7 @@ function renderDashboard(){
 
   } else {
     sc.innerHTML=S.spaces.map((n,i)=>`
-      <div class="sc" style="${inv?'cursor:pointer;':''}" ${inv?`onclick="exportPDFSingle('${key}',${i})" title="Klikni za PDF račun"`:''}>>
+      <div class="sc" style="${inv?'cursor:pointer;':''}" ${inv?`onclick="exportPDFSingle('${key}',${i})" title="Klikni za PDF račun"`:''}>
         <div class="sch" style="margin-bottom:10px">
           <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
             <div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:${COLORS[i]}"></div><span class="sn">${n}</span></div>
