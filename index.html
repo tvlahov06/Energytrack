@@ -278,7 +278,7 @@
       <div class="logo-icon">⚡</div>EnergyTrack
     </a>
     <div class="hactions">
-      <button class="ibtn" id="btn-sync" onclick="syncToGitHub()" style="width:auto;padding:0 12px;font-size:.78rem;font-weight:700;gap:5px;white-space:nowrap">☁️ Sinkroniziraj</button>
+      <button class="ibtn" id="btn-sync" title="Sinkroniziraj s GitHubom" onclick="syncToGitHub()">☁️</button>
       <button class="ibtn ibtn-theme-desktop" id="btn-theme" title="Promijeni temu" onclick="toggleTheme()">🌙</button>
       <div class="hmenu-wrap">
         <button class="ibtn ibtn-hamburger" id="btn-hamburger" title="Izbornik" onclick="toggleHMenu()" style="font-size:22px;font-weight:700;letter-spacing:-1px;width:48px">≡</button>
@@ -407,7 +407,7 @@
   <div class="page" id="page-history">
     <div class="sh">
       <h1 class="stitle">Povijest</h1>
-      <button class="btn btn-s bsm hist-json-btn" onclick="exportAllJSON()">📤 Izvezi JSON</button>
+      <button class="btn btn-s bsm hist-json-btn" onclick="exportAllJSON()" style="display:none!important">📤 Izvezi JSON</button>
     </div>
     <div class="card">
       <div class="tw">
@@ -449,7 +449,7 @@
       <div id="spaces-cfg"></div>
       <button class="btn btn-p mt16" onclick="saveSpaces()">💾 Spremi nazive</button>
     </div>
-    <div class="card mb24 settings-data-card">
+    <div class="card mb24 settings-data-card" style="display:none!important">
       <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">💾 Podaci</h3>
       <p style="font-size:.85rem;color:var(--text2);margin-bottom:18px">Izvoz, uvoz i brisanje podataka.</p>
       <div style="display:flex;gap:9px;flex-wrap:wrap">
@@ -459,7 +459,7 @@
         <button class="btn btn-d" onclick="openClearModal()">🗑️ Obriši sve</button>
       </div>
     </div>
-    <div class="card settings-upute-card">
+    <div class="card settings-upute-card" style="display:none!important">
       <h3 style="font-size:.95rem;font-weight:700;margin-bottom:12px">ℹ️ Upute</h3>
       <div style="font-size:.85rem;color:var(--text2);line-height:1.8">
         <p><strong style="color:var(--text)">1. Unos stanja (1. u mjesecu)</strong> → "Unos stanja" → unesi stanja svih 6 mjerila</p>
@@ -1060,7 +1060,7 @@ async function testGH(){
 async function syncToGitHub(){
   const{token,owner,repo,path}=S.github;
   if(!token||!owner||!repo){toast('⚠️ Postavi GitHub konfiguraciju u Postavkama','w');return;}
-  const btn=document.getElementById('btn-sync');btn.innerHTML='⏳ Sinkronizacija...';
+  const btn=document.getElementById('btn-sync');btn.textContent='⏳';
   const content=btoa(unescape(encodeURIComponent(JSON.stringify({readings:S.readings,invoices:S.invoices,spaces:S.spaces},null,2))));
   try{
     let sha='';
@@ -1070,9 +1070,9 @@ async function syncToGitHub(){
       method:'PUT',headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
       body:JSON.stringify({message:`EnergyTrack: update ${new Date().toISOString().slice(0,10)}`,content,sha:sha||undefined})
     });
-    toast(pr.ok?'☁️ Sinkronizirano s GitHub-om!':'❌ Greška pri sinkronizaciji',pr.ok?'s':'e');
+    toast(pr.ok?'☁️ Sinkronizirano':'❌ Greška pri sinkronizaciji',pr.ok?'s':'e');
   }catch{toast('❌ Mrežna greška','e');}
-  btn.innerHTML='☁️ Sinkroniziraj';
+  btn.textContent='☁️';
 }
 
 async function loadFromGH(){
