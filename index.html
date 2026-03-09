@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EnergyTrack</title>
+  <meta name="description" content="Admin panel za praćenje potrošnje električne energije" />
+  <meta name="theme-color" content="#0f172a" id="theme-color-meta" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --surface2: #f7f8fa;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text2: #64748b;
+      --accent: #f59e0b;
+      --accent2: #fbbf24;
+      --accent-soft: #fef3c7;
+      --green: #10b981;
+      --green-soft: #d1fae5;
+      --red: #ef4444;
+      --red-soft: #fee2e2;
+      --blue: #3b82f6;
+      --blue-soft: #dbeafe;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.04);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+      --r: 14px; --rsm: 10px;
+      --mono: 'Space Mono',monospace;
+      --sans: 'DM Sans',sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg:#0a0f1e; --surface:#111827; --surface2:#1a2234; --border:#1e293b;
+      --text:#f1f5f9; --text2:#94a3b8; --accent-soft:#2d2006;
+      --green-soft:#052e1c; --red-soft:#2d0a0a; --blue:#60a5fa; --blue-soft:#0d1f3c;
+      --shadow:0 1px 3px rgba(0,0,0,0.4),0 4px 16px rgba(0,0,0,0.3);
+      --shadow-lg:0 8px 32px rgba(0,0,0,0.5);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+    input[type=number]{-moz-appearance:textfield;appearance:textfield;}
+    input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+
+    /* HEADER */
+    header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+    .hi{max-width:1200px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:1.05rem;font-weight:700;color:var(--text);text-decoration:none}
+    .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+    .hactions{display:flex;gap:8px;align-items:center}
+    .ibtn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .2s}
+    .ibtn:hover{background:var(--border);transform:scale(1.05)}
+
+    /* TABS */
+    .ntabs{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:60px;z-index:99}
+    .nti{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;overflow-x:auto;scrollbar-width:none}
+    .nti::-webkit-scrollbar{display:none}
+    .tbtn{padding:14px 18px;border:none;background:none;color:var(--text2);font-family:var(--sans);font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+    .tbtn:hover{color:var(--text)}
+    .tbtn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+
+    /* MAIN */
+    main{max-width:1200px;margin:0 auto;padding:24px 20px}
+    .page{display:none}
+    .page.active{display:block}
+
+    /* CARD */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);transition:background .3s,border-color .3s}
+    .ctitle{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin-bottom:6px}
+    .cval{font-family:var(--mono);font-size:1.9rem;font-weight:700;color:var(--text);line-height:1}
+    .csub{font-size:.78rem;color:var(--text2);margin-top:4px}
+
+    /* GRID */
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    @media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+    /* SECTION */
+    .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+    .stitle{font-size:1.2rem;font-weight:700;color:var(--text)}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--rsm);border:none;font-family:var(--sans);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-p{background:var(--accent);color:#000}
+    .btn-p:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,.3)}
+    .btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+    .btn-s:hover{background:var(--border)}
+    .btn-g{background:none;color:var(--text2);border:1px solid var(--border)}
+    .btn-g:hover{background:var(--surface2);color:var(--text)}
+    .btn-d{background:var(--red-soft);color:var(--red);border:1px solid var(--red)}
+    .btn-d:hover{background:var(--red);color:#fff}
+    .bsm{padding:6px 13px;font-size:.78rem}
+
+    /* FORM */
+    .fg{margin-bottom:14px}
+    .fl{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+    .fi{width:100%;padding:9px 13px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:.9rem;transition:border-color .2s,box-shadow .2s;outline:none}
+    input[type=number].fi::-webkit-outer-spin-button,input[type=number].fi::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    input[type=number].fi{-moz-appearance:textfield}
+    .fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+    .fi::placeholder{color:var(--text2);font-family:var(--sans)}
+    .fi[type=number]{-moz-appearance:textfield;appearance:textfield}
+    .fi[type=number]::-webkit-inner-spin-button,.fi[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+
+    /* PROGRESS */
+    .pw{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+    .pb{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+
+    /* SPACE CARD */
+    .sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+    .sc:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+    .sch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .sn{font-weight:700;font-size:.9rem}
+    .skwh{font-family:var(--mono);font-size:1.35rem;font-weight:700;margin-bottom:3px}
+    .seur{font-family:var(--mono);font-size:.85rem;color:var(--text2);margin-bottom:10px}
+    .spct{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--text2);margin-bottom:5px}
+
+    /* TABLE */
+    .tw{overflow-x:auto;border-radius:var(--r)}
+    table{width:100%;border-collapse:collapse}
+    thead tr{background:var(--surface2)}
+    th{padding:11px 14px;text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);border-bottom:1px solid var(--border)}
+    td{padding:13px 14px;font-size:.85rem;border-bottom:1px solid var(--border);color:var(--text)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--surface2)}
+    .mn{font-family:var(--mono)}
+
+    /* ALERT */
+    .al{padding:12px 16px;border-radius:var(--rsm);font-size:.85rem;display:flex;align-items:flex-start;gap:9px;margin-bottom:14px}
+    .al-w{background:var(--accent-soft);color:#92400e;border:1px solid #fcd34d}
+    .al-s{background:var(--green-soft);color:#065f46;border:1px solid #6ee7b7}
+    .al-e{background:var(--red-soft);color:var(--red);border:1px solid #fca5a5}
+    .al-i{background:var(--blue-soft);color:var(--blue);border:1px solid #93c5fd}
+    [data-theme="dark"] .al-w{color:#fde68a}
+    [data-theme="dark"] .al-s{color:#6ee7b7}
+
+    /* MODAL */
+    .mo{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+    .mo.open{display:flex}
+    .mbox{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px;width:100%;max-width:500px;box-shadow:var(--shadow-lg);animation:mIn .25s ease}
+    @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:none}}
+    .mtitle{font-size:1.05rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+    .mfoot{display:flex;gap:9px;justify-content:flex-end;margin-top:22px}
+
+    /* CHART */
+    .bar-chart{display:flex;align-items:flex-end;gap:6px;height:140px;padding:0 4px}
+    .bg{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+    .bar{width:100%;border-radius:5px 5px 0 0;transition:height .6s cubic-bezier(.34,1.56,.64,1);min-height:3px;cursor:pointer}
+    .bar:hover{opacity:.8}
+
+    /* GITHUB STATUS */
+    .ghs{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:500}
+    .sdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .s-ok{background:var(--green);box-shadow:0 0 5px var(--green)}
+    .s-no{background:var(--red)}
+
+    /* TOAST */
+    #tc{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+    .tst{background:var(--text);color:var(--bg);padding:11px 16px;border-radius:var(--rsm);font-size:.85rem;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:7px;animation:tIn .3s ease;max-width:300px}
+    @keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    /* EMPTY */
+    .emp{text-align:center;padding:50px 20px;color:var(--text2)}
+    .ei{font-size:2.8rem;margin-bottom:10px}
+    .et{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:7px}
+    .es{font-size:.85rem;max-width:300px;margin:0 auto 18px}
+
+    /* DIVIDER */
+    .div{height:1px;background:var(--border);margin:18px 0}
+    .mt16{margin-top:16px} .mt24{margin-top:24px} .mb16{margin-bottom:16px} .mb24{margin-bottom:24px}
+
+    /* MONTH SEL */
+    .msel{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rsm);padding:5px 11px}
+    .msel select{border:none;background:none;color:var(--text);font-family:var(--sans);font-size:.88rem;font-weight:600;cursor:pointer;outline:none}
+
+    /* VALIDATION */
+    .vr{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--surface2);border-radius:var(--rsm);margin-bottom:7px}
+    .vlbl{font-size:.85rem;color:var(--text2)}
+    .vval{font-family:var(--mono);font-size:.85rem;font-weight:700}
+    .v-ok{color:var(--green)} .v-er{color:var(--red)}
+
+    /* BOTTOM NAV */
+    @media(max-width:600px){
+      .ntabs{display:none}
+      .bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+      .bnbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;border:none;background:none;color:var(--text2);font-size:.62rem;font-weight:500;font-family:var(--sans);cursor:pointer;transition:color .2s}
+      .bnbtn.active{color:var(--accent)}
+      .bnbtn .ni{font-size:19px}
+      main{padding-bottom:78px}
+    }
+    @media(min-width:601px){.bnav{display:none}}
+
+    .hl{border-left:4px solid var(--accent)}
+    .spin{width:16px;height:16px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
+    input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    input[type=number]{-moz-appearance:textfield;appearance:textfield}
+    @keyframes sp{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<div id="tc"></div>
+
+<header>
+  <div class="hi">
+    <a href="#" class="logo">
+      <div class="logo-icon">⚡</div>EnergyTrack
+    </a>
+    <div class="hactions">
+      <button class="ibtn" id="btn-sync" title="Spremi na GitHub" onclick="syncToGitHub()">☁️</button>
+      <button class="ibtn" id="btn-theme" title="Promijeni temu" onclick="toggleTheme()">🌙</button>
+    </div>
+  </div>
+</header>
+
+<nav class="ntabs">
+  <div class="nti">
+    <button class="tbtn active" onclick="showPage('dashboard')" data-page="dashboard">📊 Nadzorna ploča</button>
+    <button class="tbtn" onclick="showPage('readings')" data-page="readings">📟 Unos stanja</button>
+    <button class="tbtn" onclick="showPage('invoice')" data-page="invoice">🧾 Račun</button>
+    <button class="tbtn" onclick="showPage('history')" data-page="history">📅 Povijest</button>
+    <button class="tbtn" onclick="showPage('settings')" data-page="settings">⚙️ Postavke</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="sh">
+      <h1 class="stitle">Nadzorna ploča</h1>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="msel">📅 <select id="dash-ms" onchange="renderDashboard()"></select></div>
+        <button class="btn btn-p bsm" onclick="showPage('readings')">+ Unos</button>
+      </div>
+    </div>
+    <div id="dash-alert"></div>
+    <div class="g3 mb24">
+      <div class="card hl">
+        <div class="ctitle">Ukupna potrošnja</div>
+        <div class="cval" id="kpi-kwh">—</div>
+        <div class="csub">kWh ovog perioda</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Ukupni račun</div>
+        <div class="cval" id="kpi-eur">—</div>
+        <div class="csub">EUR za plaćanje</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Prosječno po prostoru</div>
+        <div class="cval" id="kpi-avg">—</div>
+        <div class="csub">kWh po prostoru</div>
+      </div>
+    </div>
+    <span id="kpi-price" style="display:none"></span>
+    <div class="sh"><h2 class="stitle" style="font-size:1rem">Poslovni prostori</h2></div>
+    <div class="g3 mb24" id="space-cards"></div>
+    <div class="card mb24">
+      <div class="sh" style="margin-bottom:14px"><h3 style="font-size:.95rem;font-weight:700">Potrošnja — zadnjih 6 mjeseci</h3></div>
+      <div id="chart-bars" class="bar-chart"></div>
+      <div id="chart-labels" style="display:flex;gap:6px;padding:0 4px;margin-top:6px"></div>
+    </div>
+  </div>
+
+  <!-- READINGS -->
+  <div class="page" id="page-readings">
+    <div class="sh"><h1 class="stitle">Unos stanja mjerila</h1></div>
+    <div class="card mb24">
+      <div class="g2 mb16" style="gap:11px">
+        <div class="fg" style="margin:0"><label class="fl">Godina</label><select class="fi" id="r-year"></select></div>
+        <div class="fg" style="margin:0"><label class="fl">Mjesec</label><select class="fi" id="r-month" onchange="loadExistingReading()">
+          <option value="1">Siječanj</option><option value="2">Veljača</option><option value="3">Ožujak</option>
+          <option value="4">Travanj</option><option value="5">Svibanj</option><option value="6">Lipanj</option>
+          <option value="7">Srpanj</option><option value="8">Kolovoz</option><option value="9">Rujan</option>
+          <option value="10">Listopad</option><option value="11">Studeni</option><option value="12">Prosinac</option>
+        </select></div>
+      </div>
+      <div id="existing-reading-note"></div>
+      <div class="div"></div>
+      <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px;color:var(--text2)">⚡ Stanja poslovnih prostora</h3>
+      <div id="space-rf"></div>
+
+      <div class="mt24" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-p" onclick="saveReadings()">💾 Spremi stanja</button>
+        <button class="btn btn-d" id="btn-delete-reading" style="display:none" onclick="deleteReading()">🗑️ Obriši unos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVOICE -->
+  <div class="page" id="page-invoice">
+    <div class="sh"><h1 class="stitle">Unos računa</h1></div>
+    <div class="card mb24">
+      <div class="g2 mb16" style="gap:11px">
+        <div class="fg" style="margin:0"><label class="fl">Godina</label><select class="fi" id="i-year" onchange="renderInvoiceP()"></select></div>
+        <div class="fg" style="margin:0"><label class="fl">Mjesec</label><select class="fi" id="i-month" onchange="renderInvoiceP()">
+          <option value="1">Siječanj</option><option value="2">Veljača</option><option value="3">Ožujak</option>
+          <option value="4">Travanj</option><option value="5">Svibanj</option><option value="6">Lipanj</option>
+          <option value="7">Srpanj</option><option value="8">Kolovoz</option><option value="9">Rujan</option>
+          <option value="10">Listopad</option><option value="11">Studeni</option><option value="12">Prosinac</option>
+        </select></div>
+      </div>
+      <div class="fg"><label class="fl">Ukupni iznos računa (EUR)</label><input type="number" class="fi" id="i-amount" placeholder="npr. 450.00" step="0.01" /></div>
+      <div class="fg"><label class="fl">Broj računa (opcionalno)</label><input type="text" class="fi" id="i-number" placeholder="npr. 2024-001" /></div>
+      <div class="fg"><label class="fl">Napomena (opcionalno)</label><input type="text" class="fi" id="i-note" placeholder="Posebna napomena..." /></div>
+      <div id="existing-invoice-note"></div>
+      <div class="mt16" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-p" onclick="saveInvoice()">💾 Spremi račun</button>
+        <button class="btn btn-d" id="btn-delete-invoice" style="display:none" onclick="deleteInvoice()">🗑️ Obriši račun</button>
+      </div>
+    </div>
+    <div class="card" id="inv-preview" style="display:none">
+      <div class="sh" style="margin-bottom:14px">
+        <h3 style="font-size:.95rem;font-weight:700">📋 Raspodjela troškova</h3>
+        <div id="pdf-buttons" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div id="inv-preview-content"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="page" id="page-history">
+    <div class="sh">
+      <h1 class="stitle">Povijest</h1>
+      <button class="btn btn-s bsm" onclick="exportAllJSON()">📤 Izvezi JSON</button>
+    </div>
+    <div class="card">
+      <div class="tw">
+        <table id="hist-table">
+          <thead><tr><th>Period</th><th>Prostor</th><th>Potrošnja</th><th>Udio</th><th>Za platiti</th><th></th></tr></thead>
+          <tbody id="hist-body"></tbody>
+        </table>
+      </div>
+      <div id="hist-empty" class="emp" style="display:none">
+        <div class="ei">📅</div><div class="et">Nema povijest podataka</div>
+        <div class="es">Počnite unosom stanja mjerila na stranici "Unos stanja".</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="sh"><h1 class="stitle">Postavke</h1></div>
+    <div class="card mb24">
+      <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🐙 GitHub sinkronizacija</h3>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:18px">Podaci se spremaju u vaš GitHub repozitorij kao JSON datoteka.</p>
+      <div id="gh-status" class="mb16"></div>
+      <div class="fg"><label class="fl">Personal Access Token</label>
+        <input type="password" class="fi" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" />
+        <div style="font-size:.72rem;color:var(--text2);margin-top:4px">Potrebna dozvola: <code>repo</code> — generiraj na github.com/settings/tokens</div>
+      </div>
+      <div class="fg"><label class="fl">GitHub korisničko ime</label><input type="text" class="fi" id="gh-owner" placeholder="npr. marko123" /></div>
+      <div class="fg"><label class="fl">Naziv repozitorija</label><input type="text" class="fi" id="gh-repo" placeholder="npr. energytrack" /></div>
+      <div class="fg"><label class="fl">Putanja datoteke</label><input type="text" class="fi" id="gh-path" value="data/energytrack.json" /></div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn btn-p" onclick="saveGHConfig()">💾 Spremi</button>
+        <button class="btn btn-s" onclick="testGH()">🔗 Testiraj</button>
+        <button class="btn btn-s" onclick="loadFromGH()">☁️ Učitaj s GitHuba</button>
+      </div>
+    </div>
+    <div class="card mb24">
+      <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🏢 Nazivi prostora</h3>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:18px">Promijenite nazive poslovnih prostora.</p>
+      <div id="spaces-cfg"></div>
+      <button class="btn btn-p mt16" onclick="saveSpaces()">💾 Spremi nazive</button>
+    </div>
+    <div class="card mb24">
+      <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">💾 Podaci</h3>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:18px">Izvoz, uvoz i brisanje podataka.</p>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn btn-s" onclick="exportAllJSON()">📤 Izvezi JSON</button>
+        <button class="btn btn-s" onclick="document.getElementById('imp-file').click()">📥 Uvezi JSON</button>
+        <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importJSON(event)" />
+        <button class="btn btn-d" onclick="openClearModal()">🗑️ Obriši sve</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:.95rem;font-weight:700;margin-bottom:12px">ℹ️ Upute</h3>
+      <div style="font-size:.85rem;color:var(--text2);line-height:1.8">
+        <p><strong style="color:var(--text)">1. Unos stanja (1. u mjesecu)</strong> → "Unos stanja" → unesi stanja svih 6 mjerila</p>
+        <p><strong style="color:var(--text)">2. Unos računa (~10. u mjesecu)</strong> → "Račun" → unesi iznos računa</p>
+        <p><strong style="color:var(--text)">3. Pregled</strong> → "Nadzorna ploča" → vidi raspodjelu i grafikone</p>
+        <p><strong style="color:var(--text)">4. GitHub sync</strong> → Postavi token u Postavkama → klikni ☁️ za sinkronizaciju</p>
+        <p><strong style="color:var(--text)">5. PDF</strong> → "Račun" → "Izvezi PDF" za ispis raspodjele</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<nav class="bnav">
+  <button class="bnbtn active" onclick="showPage('dashboard')" data-page="dashboard"><span class="ni">📊</span>Ploča</button>
+  <button class="bnbtn" onclick="showPage('readings')" data-page="readings"><span class="ni">📟</span>Unos</button>
+  <button class="bnbtn" onclick="showPage('invoice')" data-page="invoice"><span class="ni">🧾</span>Račun</button>
+  <button class="bnbtn" onclick="showPage('history')" data-page="history"><span class="ni">📅</span>Povijest</button>
+  <button class="bnbtn" onclick="showPage('settings')" data-page="settings"><span class="ni">⚙️</span>Postavke</button>
+</nav>
+
+<div class="mo" id="clear-modal">
+  <div class="mbox">
+    <div class="mtitle">⚠️ Potvrda brisanja</div>
+    <p style="font-size:.875rem;color:var(--text2)">Jeste li sigurni? Ova akcija briše sve podatke i ne može se poništiti.</p>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeModal()">Odustani</button>
+      <button class="btn btn-d" onclick="clearAll()">Obriši sve</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MONTHS=['','Siječanj','Veljača','Ožujak','Travanj','Svibanj','Lipanj','Srpanj','Kolovoz','Rujan','Listopad','Studeni','Prosinac'];
+const COLORS=['#f59e0b','#3b82f6','#10b981','#8b5cf6','#ef4444'];
+
+let S = {
+  spaces:['NEVENA','MAGIS LUX','BRESKVICA','FRIZKOTEKA','STUDIO 04'],
+  readings:{},
+  invoices:{},
+  github:{token:'',owner:'',repo:'',path:'data/energytrack.json'}
+};
+
+// ── INIT ──────────────────────────────────────
+function init(){
+  loadLS();
+  setupYears();
+  setNow();
+  buildReadingForm();
+  buildSpacesCfg();
+  loadGHConfig();
+  renderDashboard();
+  renderHistory();
+  const t=localStorage.getItem('et-theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('btn-theme').textContent=t==='dark'?'☀️':'🌙';
+}
+
+// Siječanj 2026 = prvi obračunski period
+const START_YEAR=2026, START_MONTH=1;
+const REF_YEAR=2026, REF_MONTH=1;
+
+function setupYears(){
+  const now=new Date();
+  const cy=now.getFullYear(), cm=now.getMonth()+1;
+
+  // Unos stanja: od Siječnja 2026 na dalje, uključi iduće dvije godine
+  ['r-year','i-year'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.innerHTML='';
+    for(let y=REF_YEAR;y<=cy+2;y++)
+      el.innerHTML+=`<option value="${y}"${y===cy?' selected':''}>${y}</option>`;
+  });
+
+  // Pronađi najnoviji period s unesenim stanjem (za defaultni odabir)
+  const readingKeys=Object.keys(S.readings);
+  let bestKey=null;
+  if(readingKeys.length>0){
+    const sorted=readingKeys.sort((a,b)=>{
+      const[ay,am]=a.split('-').map(Number),[by,bm]=b.split('-').map(Number);
+      return (by*12+bm)-(ay*12+am);
+    });
+    // Preferiramo najnoviji koji ima izračun (ima prethodni), inače najnoviji s unosom
+    bestKey=sorted.find(k=>canCalcCons(k)) || sorted[0];
+  }
+  if(!bestKey) bestKey=`${cy}-${cm}`;
+
+  // Gornja granica = najnoviji uneseni key ili tekući (što je veće) + 1 naprijed
+  let maxY=cy, maxM=cm;
+  readingKeys.forEach(k=>{
+    const[ky,km]=k.split('-').map(Number);
+    if(ky*12+km > maxY*12+maxM){maxY=ky;maxM=km;}
+  });
+  maxM+=1; if(maxM>12){maxM=1;maxY++;}
+
+  const ds=document.getElementById('dash-ms');
+  ds.innerHTML='';
+  for(let y=maxY;y>=START_YEAR;y--){
+    const startM=(y===maxY)?maxM:12;
+    const endM=(y===START_YEAR)?START_MONTH:1; // Siječanj 2026 uključen
+    for(let m=startM;m>=endM;m--){
+      const key=`${y}-${m}`;
+      ds.innerHTML+=`<option value="${key}"${key===bestKey?' selected':''}>${MONTHS[m]} ${y}</option>`;
+    }
+  }
+}
+
+function setNow(){
+  const now=new Date();
+  const m=now.getMonth()+1;
+  // Unos stanja: default na trenutni mjesec (ili Siječanj 2026 ako je ranije)
+  const rm=document.getElementById('r-month');
+  rm.value=m;
+  document.getElementById('i-month').value=m;
+}
+
+// Ograniči odabir na periode od Siječnja 2026 (referentno stanje)
+function filterReadingMonths(){
+  const y=+document.getElementById('r-year').value;
+  const mSel=document.getElementById('r-month');
+  const curM=+mSel.value;
+  Array.from(mSel.options).forEach(opt=>{
+    const mv=+opt.value;
+    opt.disabled=(y===REF_YEAR&&mv<REF_MONTH);
+  });
+  if(y===REF_YEAR&&curM<REF_MONTH) mSel.value=REF_MONTH;
+  loadExistingReading();
+}
+
+// ── NAV ───────────────────────────────────────
+function showPage(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('[data-page]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  document.querySelectorAll('[data-page="'+n+'"]').forEach(b=>b.classList.add('active'));
+  if(n==='dashboard')renderDashboard();
+  if(n==='history')renderHistory();
+  if(n==='invoice')renderInvoiceP();
+}
+
+// ── THEME ─────────────────────────────────────
+function toggleTheme(){
+  const c=document.documentElement.getAttribute('data-theme')||'light';
+  const n=c==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',n);
+  document.getElementById('btn-theme').textContent=n==='dark'?'☀️':'🌙';
+  localStorage.setItem('et-theme',n);
+}
+
+// ── READING FORM ──────────────────────────────
+function buildReadingForm(){
+  document.getElementById('space-rf').innerHTML=S.spaces.map((s,i)=>`
+    <div style="margin-bottom:12px">
+      <label class="fl" style="display:flex;align-items:center;gap:7px">
+        <span style="width:11px;height:11px;border-radius:50%;background:${COLORS[i]};display:inline-block;flex-shrink:0"></span>${s}
+      </label>
+      <input type="number" class="fi" id="sr-${i}" placeholder="Stanje mjerila (kWh)" oninput="validateR()" />
+    </div>`).join('');
+}
+
+function loadExistingReading(){
+  const key=`${document.getElementById('r-year').value}-${document.getElementById('r-month').value}`;
+  const r=S.readings[key];
+  const note=document.getElementById('existing-reading-note');
+  const delBtn=document.getElementById('btn-delete-reading');
+  if(r){
+    note.innerHTML=`<div class="al al-i">📝 Postoje unesena stanja za ovaj period. Spremanjem će biti prepisana.</div>`;
+    S.spaces.forEach((_,i)=>{const el=document.getElementById('sr-'+i);if(el)el.value=r.spaces[i]||'';});
+    if(delBtn)delBtn.style.display='inline-flex';
+  } else {
+    note.innerHTML='';
+    S.spaces.forEach((_,i)=>{const el=document.getElementById('sr-'+i);if(el)el.value='';});
+    if(delBtn)delBtn.style.display='none';
+  }
+}
+
+function validateR(){
+  // Samo vizualni feedback - nema usporedbe s glavnim mjerilom
+}
+
+function saveReadings(){
+  const y=+document.getElementById('r-year').value;
+  const m=+document.getElementById('r-month').value;
+  const spaces=S.spaces.map((_,i)=>parseFloat(document.getElementById('sr-'+i)?.value)||0);
+  const anyFilled=spaces.some(v=>v>0);
+  if(!anyFilled){
+    // Ako je sve prazno, obriši taj period ako postoji
+    const key=`${y}-${m}`;
+    if(S.readings[key]){
+      delete S.readings[key];
+      saveLS();toast('🗑️ Unos je obrisan.');
+      setupYears();renderDashboard();renderHistory();
+      loadExistingReading();
+    } else {
+      toast('ℹ️ Nema što spremiti — sva polja su prazna.','w');
+    }
+    return;
+  }
+  S.readings[`${y}-${m}`]={spaces,savedAt:new Date().toISOString()};
+  saveLS();
+  toast('✅ Stanja su spremljena!');
+  setupYears();
+  renderDashboard();renderHistory();
+  loadExistingReading();
+}
+
+function deleteReading(){
+  const y=+document.getElementById('r-year').value;
+  const m=+document.getElementById('r-month').value;
+  const key=`${y}-${m}`;
+  if(!S.readings[key]){toast('ℹ️ Nema unosa za ovaj period.','w');return;}
+  delete S.readings[key];
+  // Obriši i račun ako postoji za taj period
+  if(S.invoices[key]) delete S.invoices[key];
+  saveLS();
+  toast(`🗑️ Unos za ${MONTHS[m]} ${y} je obrisan.`);
+  setupYears();renderDashboard();renderHistory();
+  loadExistingReading();
+}
+
+// ── INVOICE ───────────────────────────────────
+function saveInvoice(){
+  const y=+document.getElementById('i-year').value;
+  const m=+document.getElementById('i-month').value;
+  const amount=parseFloat(document.getElementById('i-amount').value);
+  const key=`${y}-${m}`;
+  if(!amount||isNaN(amount)){toast('⚠️ Unesi iznos računa','w');return;}
+  if(!S.readings[key]){toast('⚠️ Unesi stanja mjerila za ovaj period','w');return;}
+  if(!canCalcCons(key)){
+    const[ky,km]=key.split('-').map(Number);
+    let nm=km+1,ny=ky; if(nm>12){nm=1;ny++;}
+    toast(`⚠️ Unesi stanja za ${MONTHS[nm]} ${ny} da zatvoriš period`,'w');return;
+  }
+  S.invoices[key]={amount,number:document.getElementById('i-number').value,note:document.getElementById('i-note').value,savedAt:new Date().toISOString()};
+  saveLS();toast('✅ Račun je spremljen!');
+  renderInvoiceP();renderHistory();
+}
+
+function deleteInvoice(){
+  const y=+document.getElementById('i-year').value;
+  const m=+document.getElementById('i-month').value;
+  const key=`${y}-${m}`;
+  if(!S.invoices[key]){toast('ℹ️ Nema unesenog računa za ovaj period.','w');return;}
+  delete S.invoices[key];
+  saveLS();
+  toast(`🗑️ Račun za ${MONTHS[m]} ${y} je obrisan.`);
+  renderInvoiceP();renderHistory();renderDashboard();
+}
+
+function renderInvoiceP(){
+  const y=+document.getElementById('i-year')?.value;
+  const m=+document.getElementById('i-month')?.value;
+  if(!y||!m)return;
+  const key=`${y}-${m}`;
+  const inv=S.invoices[key];const cons=getCons(key);const amts=getAmts(key);
+  const pe=document.getElementById('inv-preview');
+  const ce=document.getElementById('inv-preview-content');
+  // Pre-fill if exists + pokaži/sakrij gumb za brisanje
+  const delInvBtn=document.getElementById('btn-delete-invoice');
+  const invNote=document.getElementById('existing-invoice-note');
+  if(inv){
+    document.getElementById('i-amount').value=inv.amount;
+    document.getElementById('i-number').value=inv.number||'';
+    document.getElementById('i-note').value=inv.note||'';
+    if(delInvBtn)delInvBtn.style.display='inline-flex';
+    if(invNote)invNote.innerHTML=`<div class="al al-i mb16">📝 Postoji uneseni račun za ovaj period. Spremanjem će biti prepisan.</div>`;
+  } else {
+    document.getElementById('i-amount').value='';
+    document.getElementById('i-number').value='';
+    document.getElementById('i-note').value='';
+    if(delInvBtn)delInvBtn.style.display='none';
+    if(invNote)invNote.innerHTML='';
+  }
+  if(inv&&cons&&amts){
+    pe.style.display='block';
+    // Populate individual PDF buttons per space
+    const pdfBtns=document.getElementById('pdf-buttons');
+    if(pdfBtns) pdfBtns.innerHTML=S.spaces.map((n,i)=>`<button class="btn btn-g bsm" onclick="exportPDFSingle('${key}',${i})" style="border-color:${COLORS[i]};color:${COLORS[i]}">📄 ${n}</button>`).join('');
+    ce.innerHTML=`
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding:12px 14px;background:var(--surface2);border-radius:var(--rsm)">
+        <div><span style="font-size:.72rem;color:var(--text2)">Period</span><br><strong>${MONTHS[m]} ${y}</strong></div>
+        <div><span style="font-size:.72rem;color:var(--text2)">Ukupan račun</span><br><strong class="mn">${inv.amount.toFixed(2)} €</strong></div>
+        <div><span style="font-size:.72rem;color:var(--text2)">Ukupna potrošnja</span><br><strong class="mn">${cons.total.toFixed(1)} kWh</strong></div>
+        ${inv.number?`<div><span style="font-size:.72rem;color:var(--text2)">Br. računa</span><br><strong>${inv.number}</strong></div>`:''}
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Prostor</th><th>kWh</th><th>Udio</th><th>Za platiti</th><th></th></tr></thead>
+        <tbody>${S.spaces.map((n,i)=>`<tr>
+          <td><div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:${COLORS[i]}"></div><strong>${n}</strong></div></td>
+          <td class="mn">${cons.sc[i].toFixed(1)}</td>
+          <td><div style="display:flex;align-items:center;gap:7px">
+            <div class="pw" style="flex:1;min-width:60px"><div class="pb" style="width:${cons.pct[i]}%;background:${COLORS[i]}"></div></div>
+            <span class="mn">${cons.pct[i].toFixed(1)}%</span></div></td>
+          <td class="mn" style="font-weight:700;color:${COLORS[i]}">${amts.a[i].toFixed(2)} €</td>
+          <td><button class="btn btn-g bsm" onclick="exportPDFSingle('${key}',${i})">📄 PDF</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+      ${inv.note?`<div style="margin-top:10px;padding:9px;background:var(--surface2);border-radius:var(--rsm);font-size:.85rem;color:var(--text2)">📝 ${inv.note}</div>`:''}`;
+  } else {
+    pe.style.display='none';
+  }
+}
+
+// ── CALCULATIONS ──────────────────────────────
+function getCons(key){
+  // Potrošnja za period "key" = stanja sljedećeg čitanja - stanja ovog čitanja
+  // Npr. potrošnja za Siječanj = stanja unesena u Veljaču - stanja unesena u Siječnju
+  const r=S.readings[key]; if(!r)return null;
+  const [y,m]=key.split('-').map(Number);
+  let nm=m+1,ny=y; if(nm>12){nm=1;ny++;}
+  const next=S.readings[`${ny}-${nm}`];
+  if(!next) return null; // Nema sljedećeg čitanja = period još nije zatvoren
+  const sc=next.spaces.map((s,i)=>s-(r.spaces[i]||0));
+  const total=sc.reduce((a,b)=>a+b,0);
+  const pct=sc.map(c=>total>0?(c/total)*100:0);
+  return{sc,total,pct};
+}
+
+// Pomoćna: provjeri ima li uneseno stanje za key (ali možda nema prethodnog)
+function hasReading(key){return !!S.readings[key];}
+function canCalcCons(key){
+  // Period je zatvoren ako postoji čitanje za sljedeći månesec
+  if(!S.readings[key])return false;
+  const[y,m]=key.split('-').map(Number);
+  let nm=m+1,ny=y; if(nm>12){nm=1;ny++;}
+  return !!S.readings[`${ny}-${nm}`];
+}
+
+function getAmts(key){
+  const inv=S.invoices[key];if(!inv)return null;
+  const cons=getCons(key);if(!cons)return null;
+  const a=cons.pct.map(p=>(p/100)*inv.amount);
+  const ppk=cons.total>0?inv.amount/cons.total:0;
+  return{a,ppk};
+}
+
+// ── DASHBOARD ─────────────────────────────────
+function renderDashboard(){
+  const sel=document.getElementById('dash-ms');if(!sel)return;
+  const[y,m]=sel.value.split('-').map(Number);
+  const key=`${y}-${m}`;
+  const cons=getCons(key);const amts=getAmts(key);const inv=S.invoices[key];
+  document.getElementById('kpi-kwh').textContent=cons?cons.total.toFixed(1):'—';
+  document.getElementById('kpi-eur').textContent=inv?inv.amount.toFixed(2)+' €':'—';
+  document.getElementById('kpi-avg').textContent=cons?(cons.total/S.spaces.length).toFixed(1):'—';
+
+  const al=document.getElementById('dash-alert');
+  const hasR=hasReading(key);
+  const canC=canCalcCons(key);
+
+  if(!hasR){
+    al.innerHTML=`<div class="al al-i mb16">ℹ️ Nema unesenih stanja za <strong>${MONTHS[m]} ${y}</strong>. <a href="#" onclick="showPage('readings')" style="color:inherit;font-weight:700">Unesi stanja →</a></div>`;
+  } else if(!canC){
+    // Ima stanje ali nema sljedećeg čitanja = period još nije zatvoren
+    let nm2=m+1,ny2=y; if(nm2>12){nm2=1;ny2++;}
+    al.innerHTML=`<div class="al al-w mb16">⚠️ Stanja za ${MONTHS[m]} ${y} su unesena. Za izračun potrošnje unesi stanja za <strong>${MONTHS[nm2]} ${ny2}</strong>. <a href="#" onclick="showPage('readings')" style="color:inherit;font-weight:700">Unesi →</a></div>`;
+  } else if(!inv){
+    al.innerHTML=`<div class="al al-w mb16">⚠️ Potrošnja izračunata, ali račun za ${MONTHS[m]} ${y} nije unesen. <a href="#" onclick="showPage('invoice')" style="color:inherit;font-weight:700">Unesi račun →</a></div>`;
+  } else {
+    al.innerHTML='';
+  }
+
+  const sc=document.getElementById('space-cards');
+  if(!cons){
+    sc.innerHTML='<div class="emp" style="grid-column:1/-1"><div class="ei">📊</div><div class="et">Nema podataka</div><div class="es">Unesi stanja mjerila.</div><button class="btn btn-p" onclick="showPage(\'readings\')">Unesi stanja</button></div>';
+
+  } else {
+    sc.innerHTML=S.spaces.map((n,i)=>`
+      <div class="sc">
+        <div class="sch" style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:${COLORS[i]}"></div><span class="sn">${n}</span></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:2.6rem;font-weight:700;color:${COLORS[i]};line-height:1;margin-bottom:8px">${cons.pct[i].toFixed(1)}<span style="font-size:1.1rem;font-weight:400">%</span></div>
+        <div class="pw" style="margin-bottom:12px"><div class="pb" style="width:${cons.pct[i]}%;background:${COLORS[i]}"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-family:var(--mono);font-size:1rem;font-weight:600;color:var(--text)">${cons.sc[i].toFixed(1)} <span style="font-size:.78rem;font-weight:400;color:var(--text2)">kWh</span></span>
+          <span style="font-family:var(--mono);font-size:.88rem;font-weight:500;color:var(--text2)">${amts?amts.a[i].toFixed(2)+' €':'—'}</span>
+        </div>
+      </div>`).join('');
+  }
+  renderChart();
+}
+
+function renderChart(){
+  // Prikaži zadnjih 6 perioda koji postoje u aplikaciji (od Feb 2026 nadalje)
+  const allMonths=[];
+  const now=new Date();
+  let maxY=now.getFullYear(), maxM=now.getMonth()+1;
+  // Uzmi najnoviji uneseni period
+  Object.keys(S.readings).forEach(k=>{
+    const[ky,km]=k.split('-').map(Number);
+    if(ky*12+km > maxY*12+maxM){maxY=ky;maxM=km;}
+  });
+  for(let i=5;i>=0;i--){
+    let m=maxM-i, y=maxY;
+    while(m<=0){m+=12;y--;}
+    if(y<START_YEAR||(y===START_YEAR&&m<START_MONTH))continue;
+    allMonths.push({y,m,key:`${y}-${m}`});
+  }
+  const mx=Math.max(...allMonths.map(({key})=>{const c=getCons(key);return c?c.total:0;}),1);
+  const be=document.getElementById('chart-bars'),le=document.getElementById('chart-labels');
+  if(!be)return;
+  be.innerHTML=allMonths.map(({m,y,key})=>{
+    const c=getCons(key);const t=c?c.total:0;const hp=(t/mx)*100;
+    return`<div class="bg"><div style="font-size:.62rem;color:var(--text2);font-family:var(--mono);margin-bottom:3px">${t>0?t.toFixed(0):''}</div><div class="bar" style="height:${Math.max(hp,t>0?4:0)}%;background:var(--accent);opacity:${t>0?1:0.2}" title="${MONTHS[m]} ${y}: ${t.toFixed(1)} kWh"></div></div>`;
+  }).join('');
+  le.innerHTML=allMonths.map(({m,y})=>`<div style="flex:1;font-size:.62rem;color:var(--text2);text-align:center">${MONTHS[m].slice(0,3)} ${String(y).slice(2)}</div>`).join('');
+}
+
+// ── HISTORY ───────────────────────────────────
+function renderHistory(){
+  const tb=document.getElementById('hist-body'),em=document.getElementById('hist-empty');
+  const keys=Object.keys(S.readings).sort((a,b)=>{const[ay,am]=a.split('-').map(Number),[by,bm]=b.split('-').map(Number);return by*12+bm-(ay*12+am);});
+  if(!keys.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=keys.flatMap(key=>{
+    const[y,m]=key.split('-').map(Number);
+    const cons=getCons(key);const amts=getAmts(key);const inv=S.invoices[key];
+    if(!cons)return[];
+    return S.spaces.map((n,i)=>`<tr>
+      <td style="white-space:nowrap;font-weight:500">${MONTHS[m]} ${y}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:${COLORS[i]}"></div>${n}</div></td>
+      <td class="mn">${cons.sc[i].toFixed(1)} kWh</td>
+      <td class="mn">${cons.pct[i].toFixed(1)}%</td>
+      <td class="mn" style="font-weight:600">${amts?amts.a[i].toFixed(2)+' €':'—'}</td>
+      <td>${inv?`<button class="btn btn-g bsm" onclick="exportPDFSingle('${key}',${i})">📄 PDF</button>`:'<span style="font-size:.75rem;color:var(--text2)">Bez računa</span>'}</td>
+    </tr>`);
+  }).join('');
+}
+
+// ── PDF ───────────────────────────────────────
+function exportPDF(){
+  const y=+document.getElementById('i-year').value,m=+document.getElementById('i-month').value;
+  exportPDFKey(`${y}-${m}`);
+}
+function exportPDFSingle(key, spaceIdx){
+  const[y,m]=key.split('-').map(Number);
+  const inv=S.invoices[key];const cons=getCons(key);const amts=getAmts(key);
+  if(!cons){toast('⚠️ Nema podataka za ovaj period','w');return;}
+  const n=S.spaces[spaceIdx];const i=spaceIdx;
+  const html=`<!DOCTYPE html><html lang="hr"><head><meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;color:#0f172a;padding:40px;font-size:13px;line-height:1.5}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;border-bottom:3px solid ${COLORS[i]};padding-bottom:18px}
+.logo{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;display:flex;align-items:center;gap:9px}
+.li{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:5px 9px;border-radius:7px}
+.hero{text-align:center;padding:32px;background:#f8fafc;border-radius:12px;margin-bottom:24px;border:2px solid ${COLORS[i]}20}
+.pct{font-family:'Space Mono',monospace;font-size:64px;font-weight:700;color:${COLORS[i]};line-height:1}
+.spacename{font-size:22px;font-weight:700;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:13px}
+.row:last-child{border-bottom:none}
+.lbl{color:#64748b}
+.val{font-family:'Space Mono',monospace;font-weight:700}
+.footer{margin-top:28px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between}
+.bbg{background:#e2e8f0;height:10px;border-radius:5px;margin-top:12px}
+.bfi{height:10px;border-radius:5px;background:${COLORS[i]};width:${cons.pct[i].toFixed(1)}%}
+</style></head><body>
+<div class="hdr">
+  <div class="logo"><span class="li">⚡</span> EnergyTrack</div>
+  <div style="text-align:right;font-size:12px;color:#64748b">
+    <span>Račun za poslovni prostor</span><br>
+    <strong style="font-size:15px;color:#0f172a">${MONTHS[m]} ${y}</strong>
+    ${inv?.number?`<br><span>Br. računa: ${inv.number}</span>`:''}
+  </div>
+</div>
+<div class="hero">
+  <div class="spacename">${n}</div>
+  <div class="pct">${cons.pct[i].toFixed(1)}<span style="font-size:32px">%</span></div>
+  <div style="font-size:13px;color:#64748b;margin-top:8px">udio ukupne potrošnje</div>
+  <div class="bbg"><div class="bfi"></div></div>
+</div>
+<div style="background:#f8fafc;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;margin-bottom:20px">
+  <div class="row"><span class="lbl">Potrošnja</span><span class="val">${cons.sc[i].toFixed(2)} kWh</span></div>
+  <div class="row"><span class="lbl">Udio</span><span class="val">${cons.pct[i].toFixed(2)}%</span></div>
+  <div class="row"><span class="lbl">Ukupan račun</span><span class="val">${inv?inv.amount.toFixed(2)+' €':'N/A'}</span></div>
+  <div class="row" style="background:${COLORS[i]}15"><span class="lbl" style="font-weight:700">Za platiti</span><span class="val" style="color:${COLORS[i]};font-size:18px">${amts?amts.a[i].toFixed(2)+' €':'N/A'}</span></div>
+</div>
+${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-size:11px;color:#92400e;margin-bottom:14px">📝 <strong>Napomena:</strong> ${inv.note}</div>`:''}
+<div class="footer"><span>EnergyTrack — ${n}</span><span>Generirano: ${new Date().toLocaleDateString('hr-HR')}</span></div>
+</body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();setTimeout(()=>w.print(),600);
+}
+
+function exportPDFKey(key){
+  const[y,m]=key.split('-').map(Number);
+  const inv=S.invoices[key];const cons=getCons(key);const amts=getAmts(key);
+  if(!cons){toast('⚠️ Nema podataka za ovaj period','w');return;}
+  const html=`<!DOCTYPE html><html lang="hr"><head><meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;color:#0f172a;padding:40px;font-size:13px;line-height:1.5}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;border-bottom:3px solid #f59e0b;padding-bottom:18px}
+.logo{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;display:flex;align-items:center;gap:9px}
+.li{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:5px 9px;border-radius:7px}
+.period{font-size:12px;color:#64748b;text-align:right}
+.period strong{font-size:15px;color:#0f172a;display:block}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.sc{background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:14px}
+.sl{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.sv{font-family:'Space Mono',monospace;font-size:18px;font-weight:700}
+table{width:100%;border-collapse:collapse;margin-bottom:20px}
+th{background:#f1f5f9;padding:9px 13px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;border-bottom:2px solid #e2e8f0}
+td{padding:11px 13px;border-bottom:1px solid #f1f5f9;font-size:12px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:7px;vertical-align:middle}
+.mn{font-family:'Space Mono',monospace}
+.amt{font-weight:700;font-size:14px}
+.bbg{background:#f1f5f9;height:5px;border-radius:3px;flex:1;margin:0 7px;display:inline-block;vertical-align:middle}
+.bfi{height:5px;border-radius:3px;display:inline-block}
+.footer{margin-top:28px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between}
+</style></head><body>
+<div class="hdr">
+  <div class="logo"><span class="li">⚡</span> EnergyTrack</div>
+  <div class="period"><span>Izvještaj potrošnje električne energije</span><strong>${MONTHS[m]} ${y}</strong>${inv?.number?`<span style="font-size:10px">Br. računa: ${inv.number}</span>`:''}</div>
+</div>
+<div class="summary">
+  <div class="sc"><div class="sl">Ukupna potrošnja</div><div class="sv">${cons.total.toFixed(1)} kWh</div></div>
+  <div class="sc"><div class="sl">Ukupan račun</div><div class="sv">${inv?inv.amount.toFixed(2)+' €':'N/A'}</div></div>
+  <div class="sc"><div class="sl">Cijena / kWh</div><div class="sv">${amts?amts.ppk.toFixed(4)+' €':'N/A'}</div></div>
+</div>
+<table>
+  <thead><tr><th>Poslovni prostor</th><th>Potrošnja (kWh)</th><th>Udio (%)</th><th>Za platiti (€)</th></tr></thead>
+  <tbody>${S.spaces.map((n,i)=>`<tr>
+    <td><span class="dot" style="background:${COLORS[i]}"></span><strong>${n}</strong></td>
+    <td class="mn">${cons.sc[i].toFixed(2)}</td>
+    <td><span class="mn" style="min-width:45px;display:inline-block">${cons.pct[i].toFixed(1)}%</span><span class="bbg"><span class="bfi" style="width:${cons.pct[i]}%;background:${COLORS[i]}"></span></span></td>
+    <td class="mn amt" style="color:${COLORS[i]}">${amts?amts.a[i].toFixed(2):'N/A'}</td>
+  </tr>`).join('')}</tbody>
+</table>
+${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-size:11px;color:#92400e;margin-bottom:14px">📝 <strong>Napomena:</strong> ${inv.note}</div>`:''}
+<div class="footer"><span>EnergyTrack — automatski generirani izvještaj</span><span>Generirano: ${new Date().toLocaleDateString('hr-HR')}</span></div>
+</body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();setTimeout(()=>w.print(),600);
+}
+
+// ── GITHUB ────────────────────────────────────
+function loadGHConfig(){
+  const s=localStorage.getItem('et-gh');
+  if(s)try{S.github=JSON.parse(s);}catch{}
+  document.getElementById('gh-token').value=S.github.token||'';
+  document.getElementById('gh-owner').value=S.github.owner||'';
+  document.getElementById('gh-repo').value=S.github.repo||'';
+  document.getElementById('gh-path').value=S.github.path||'data/energytrack.json';
+  updateGHStatus();
+}
+
+function saveGHConfig(){
+  S.github={token:document.getElementById('gh-token').value.trim(),owner:document.getElementById('gh-owner').value.trim(),repo:document.getElementById('gh-repo').value.trim(),path:document.getElementById('gh-path').value.trim()||'data/energytrack.json'};
+  localStorage.setItem('et-gh',JSON.stringify(S.github));
+  updateGHStatus();toast('✅ GitHub konfiguracija spremljena!');
+}
+
+function updateGHStatus(){
+  const el=document.getElementById('gh-status');if(!el)return;
+  const{token,owner,repo}=S.github;
+  el.innerHTML=token&&owner&&repo
+    ?`<div class="ghs"><div class="sdot s-ok"></div>Konfiguriran: <strong>${owner}/${repo}</strong></div>`
+    :`<div class="ghs"><div class="sdot s-no"></div>GitHub nije konfiguriran</div>`;
+}
+
+async function testGH(){
+  const{token,owner,repo}=S.github;
+  if(!token||!owner||!repo){toast('⚠️ Popuni GitHub podatke','w');return;}
+  const btn=event.target;btn.disabled=true;btn.innerHTML='<div class="spin"></div>';
+  try{
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}});
+    toast(r.ok?'✅ Veza uspješna!':'❌ Greška '+r.status+' — provjeri token',r.ok?'s':'e');
+  }catch{toast('❌ Mrežna greška','e');}
+  btn.innerHTML='🔗 Testiraj';btn.disabled=false;
+}
+
+async function syncToGitHub(){
+  const{token,owner,repo,path}=S.github;
+  if(!token||!owner||!repo){toast('⚠️ Postavi GitHub konfiguraciju u Postavkama','w');return;}
+  const btn=document.getElementById('btn-sync');btn.textContent='⏳';
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify({readings:S.readings,invoices:S.invoices,spaces:S.spaces},null,2))));
+  try{
+    let sha='';
+    const gr=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}});
+    if(gr.ok){const d=await gr.json();sha=d.sha;}
+    const pr=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{
+      method:'PUT',headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:`EnergyTrack: update ${new Date().toISOString().slice(0,10)}`,content,sha:sha||undefined})
+    });
+    toast(pr.ok?'☁️ Sinkronizirano s GitHub-om!':'❌ Greška pri sinkronizaciji',pr.ok?'s':'e');
+  }catch{toast('❌ Mrežna greška','e');}
+  btn.textContent='☁️';
+}
+
+async function loadFromGH(){
+  const{token,owner,repo,path}=S.github;
+  if(!token||!owner||!repo){toast('⚠️ Postavi GitHub konfiguraciju','w');return;}
+  try{
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}});
+    if(!r.ok){toast('❌ Datoteka nije pronađena na GitHubu','e');return;}
+    const d=await r.json();
+    const json=JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
+    if(json.readings)S.readings=json.readings;
+    if(json.invoices)S.invoices=json.invoices;
+    if(json.spaces)S.spaces=json.spaces;
+    saveLS();buildReadingForm();buildSpacesCfg();setupYears();renderDashboard();renderHistory();
+    toast('✅ Podaci učitani s GitHub-a!');
+  }catch(e){toast('❌ Greška: '+e.message,'e');}
+}
+
+// ── SPACES CONFIG ─────────────────────────────
+function buildSpacesCfg(){
+  const c=document.getElementById('spaces-cfg');if(!c)return;
+  c.innerHTML=S.spaces.map((n,i)=>`
+    <div class="fg" style="display:flex;align-items:center;gap:9px">
+      <div style="width:11px;height:11px;border-radius:50%;background:${COLORS[i]};flex-shrink:0"></div>
+      <input type="text" class="fi" id="sn-${i}" value="${n}" placeholder="Naziv prostora" />
+    </div>`).join('');
+}
+
+function saveSpaces(){
+  const n=S.spaces.map((_,i)=>document.getElementById('sn-'+i)?.value.trim()||S.spaces[i]);
+  if(n.some(x=>!x)){toast('⚠️ Sva polja moraju biti ispunjena','w');return;}
+  S.spaces=n;saveLS();buildReadingForm();renderDashboard();renderHistory();
+  toast('✅ Nazivi ažurirani!');
+}
+
+// ── DATA ──────────────────────────────────────
+function exportAllJSON(){
+  const b=new Blob([JSON.stringify({readings:S.readings,invoices:S.invoices,spaces:S.spaces},null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(b);const a=document.createElement('a');
+  a.href=u;a.download=`energytrack-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u);
+  toast('✅ JSON izvezen!');
+}
+
+function importJSON(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.readings)S.readings=d.readings;if(d.invoices)S.invoices=d.invoices;if(d.spaces)S.spaces=d.spaces;
+      saveLS();buildReadingForm();buildSpacesCfg();setupYears();renderDashboard();renderHistory();
+      toast('✅ Podaci uvezeni!');
+    }catch{toast('❌ Greška pri uvozu','e');}
+  };
+  r.readAsText(f);e.target.value='';
+}
+
+function openClearModal(){document.getElementById('clear-modal').classList.add('open');}
+function closeModal(){document.getElementById('clear-modal').classList.remove('open');}
+function clearAll(){S.readings={};S.invoices={};saveLS();closeModal();renderDashboard();renderHistory();toast('🗑️ Svi podaci obrisani');}
+
+// ── STORAGE ───────────────────────────────────
+function saveLS(){localStorage.setItem('et-data',JSON.stringify({readings:S.readings,invoices:S.invoices,spaces:S.spaces}));}
+function loadLS(){
+  const s=localStorage.getItem('et-data');
+  if(s)try{const d=JSON.parse(s);if(d.readings)S.readings=d.readings;if(d.invoices)S.invoices=d.invoices;if(d.spaces)S.spaces=d.spaces;}catch{}
+}
+
+// ── TOAST ─────────────────────────────────────
+function toast(msg,type='s'){
+  const el=document.createElement('div');el.className='tst';
+  if(type==='e')el.style.background='#ef4444';
+  else if(type==='w')el.style.cssText+=';background:var(--accent);color:#000';
+  el.textContent=msg;
+  document.getElementById('tc').appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+// ── EVENTS ────────────────────────────────────
+document.getElementById('clear-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('r-year').addEventListener('change',filterReadingMonths);
+document.getElementById('r-month').addEventListener('change',loadExistingReading);
+
+init();
+
+// Register Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
