@@ -204,9 +204,9 @@
 
     /* ── HAMBURGER MENU ── */
     .hmenu-wrap{position:relative;}
-    .hmenu{position:fixed;top:60px;right:12px;left:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:500;overflow:hidden;display:none;animation:mIn .2s ease;}
+    .hmenu{position:fixed;top:60px;right:12px;left:auto;min-width:180px;max-width:240px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:500;overflow:hidden;display:none;animation:mIn .2s ease;}
     .hmenu.open{display:block;}
-    .hmenu-item{display:flex;align-items:center;gap:14px;padding:17px 22px;font-size:1.05rem;font-weight:500;color:var(--text);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--sans);transition:background .15s;border-bottom:1px solid var(--border);}
+    .hmenu-item{display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:.9rem;font-weight:500;color:var(--text);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--sans);transition:background .15s;border-bottom:1px solid var(--border);}
     .hmenu-item:last-child{border-bottom:none;}
     .hmenu-item:hover{background:var(--surface2);}
     .hmenu-item:active{background:var(--border);}
@@ -281,7 +281,7 @@
       <button class="ibtn" id="btn-sync" title="Spremi na GitHub" onclick="syncToGitHub()">☁️</button>
       <button class="ibtn ibtn-theme-desktop" id="btn-theme" title="Promijeni temu" onclick="toggleTheme()">🌙</button>
       <div class="hmenu-wrap">
-        <button class="ibtn ibtn-hamburger" id="btn-hamburger" title="Izbornik" onclick="toggleHMenu()" style="font-size:20px;font-weight:700;letter-spacing:-1px">≡</button>
+        <button class="ibtn ibtn-hamburger" id="btn-hamburger" title="Izbornik" onclick="toggleHMenu()" style="font-size:22px;font-weight:700;letter-spacing:-1px;width:48px">≡</button>
       </div>
     </div>
     <!-- Hamburger overlay -->
