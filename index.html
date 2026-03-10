@@ -219,6 +219,7 @@
     .mob-dash-bar{display:none;gap:8px;margin-bottom:16px;align-items:center;}
     .mob-act-btn{padding:9px 12px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:.88rem;font-weight:600;cursor:pointer;white-space:nowrap;}
     .mob-act-btn:active{background:var(--border);}
+    .mob-act-btn-primary{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important;}
     /* ── MOBILE ONLY ── */
     @media(max-width:600px){
       .dash-desktop-actions{display:none!important;}
@@ -307,8 +308,8 @@
     <!-- Mobilna akcijska traka - datum, unos, povijest -->
     <div class="mob-dash-bar">
       <div class="msel" style="flex:1;min-width:0">📅 <select id="dash-ms-mob" onchange="document.getElementById('dash-ms').value=this.value;renderDashboard()"></select></div>
-      <button class="mob-act-btn" onclick="showPage('readings')">📟 Unos</button>
-      <button class="mob-act-btn" onclick="showPage('history')">📅 Povijest</button>
+      <button class="mob-act-btn mob-act-btn-primary" onclick="showPage('readings')">+ Unos</button>
+      <button class="mob-act-btn" onclick="showPage('history')">Povijest</button>
     </div>
     <div id="dash-alert"></div>
     <div class="g3 mb24">
