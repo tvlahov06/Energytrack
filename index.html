@@ -206,28 +206,23 @@
 
 
     /* ── HAMBURGER MENU ── */
-    .hmenu-wrap{position:relative;}
-    .hmenu{position:fixed;top:60px;right:12px;left:auto;min-width:180px;max-width:240px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:500;overflow:hidden;display:none;animation:mIn .2s ease;}
-    .hmenu.open{display:block;}
-    .hmenu-item{display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:.9rem;font-weight:500;color:var(--text);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--sans);transition:background .15s;border-bottom:1px solid var(--border);}
-    .hmenu-item:last-child{border-bottom:none;}
-    .hmenu-item:hover{background:var(--surface2);}
-    .hmenu-item:active{background:var(--border);}
-    .hmenu-divider{height:1px;background:var(--border);}
-    .hmenu-overlay{position:fixed;inset:0;z-index:499;display:none;}
-    .hmenu-overlay.open{display:block;}
-    /* Desktop: sakrij hamburger, prikaži stare gumbe */
+
+    .ibtn-mob-only{display:none}
     @media(min-width:601px){
-      .ibtn-hamburger{display:none!important;}
       .ibtn-theme-desktop{display:flex!important;}
     }
-    /* Mobitel: sakrij desktop theme btn, prikaži hamburger */
     @media(max-width:600px){
       .ibtn-theme-desktop{display:none!important;}
-      .ibtn-hamburger{display:flex!important;}
+      .ibtn-mob-only{display:flex!important;}
     }
+
+    .mob-dash-bar{display:none;gap:8px;margin-bottom:16px;align-items:center;}
+    .mob-act-btn{padding:9px 12px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:.88rem;font-weight:600;cursor:pointer;white-space:nowrap;}
+    .mob-act-btn:active{background:var(--border);}
     /* ── MOBILE ONLY ── */
     @media(max-width:600px){
+      .dash-desktop-actions{display:none!important;}
+      .mob-dash-bar{display:flex!important;}
       /* Sakrij Prosječno po prostoru karticu */
       #kpi-avg-card{display:none!important;}
       /* Sakrij Izvezi JSON u povijesti */
@@ -283,19 +278,8 @@
     <div class="hactions">
       <button class="ibtn" id="btn-sync" title="Sinkroniziraj s GitHubom" onclick="syncToGitHub()">☁️</button>
       <button class="ibtn ibtn-theme-desktop" id="btn-theme" title="Promijeni temu" onclick="toggleTheme()">🌙</button>
-      <div class="hmenu-wrap">
-        <button class="ibtn ibtn-hamburger" id="btn-hamburger" title="Izbornik" onclick="toggleHMenu()" style="font-size:22px;font-weight:700;letter-spacing:-1px;width:48px">≡</button>
-      </div>
-    </div>
-    <!-- Hamburger overlay -->
-    <div class="hmenu-overlay" id="hmenu-overlay" onclick="closeHMenu()"></div>
-    <!-- Hamburger dropdown -->
-    <div class="hmenu" id="hmenu">
-      <button class="hmenu-item" onclick="closeHMenu();showPage('dashboard')">📊 Nadzorna ploča</button>
-      <button class="hmenu-item" onclick="closeHMenu();showPage('readings')">📟 Unos</button>
-      <button class="hmenu-item" onclick="closeHMenu();showPage('history')">📅 Povijest</button>
-      <button class="hmenu-item" onclick="closeHMenu();showPage('settings')">⚙️ Postavke</button>
-      <button class="hmenu-item" id="hmenu-theme" onclick="toggleTheme()">🌙 Tamni način</button>
+      <button class="ibtn ibtn-mob-only" id="btn-theme-mob" title="Promijeni temu" onclick="toggleTheme()">🌙</button>
+      <button class="ibtn ibtn-mob-only" title="Postavke" onclick="showPage('settings')">⚙️</button>
     </div>
   </div>
 </header>
@@ -315,10 +299,16 @@
   <div class="page active" id="page-dashboard">
     <div class="sh">
       <h1 class="stitle">Nadzorna ploča</h1>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div class="dash-desktop-actions" style="display:flex;gap:8px;align-items:center">
         <div class="msel">📅 <select id="dash-ms" onchange="renderDashboard()"></select></div>
         <button class="btn btn-p bsm" onclick="showPage('readings')">+ Unos</button>
       </div>
+    </div>
+    <!-- Mobilna akcijska traka - datum, unos, povijest -->
+    <div class="mob-dash-bar">
+      <div class="msel" style="flex:1;min-width:0">📅 <select id="dash-ms-mob" onchange="document.getElementById('dash-ms').value=this.value;renderDashboard()"></select></div>
+      <button class="mob-act-btn" onclick="showPage('readings')">📟 Unos</button>
+      <button class="mob-act-btn" onclick="showPage('history')">📅 Povijest</button>
     </div>
     <div id="dash-alert"></div>
     <div class="g3 mb24">
@@ -506,17 +496,7 @@ let S = {
 };
 
 
-// ── HAMBURGER MENU ──────────────────────────────
-function toggleHMenu(){
-  const m=document.getElementById('hmenu');
-  const o=document.getElementById('hmenu-overlay');
-  const open=m.classList.toggle('open');
-  o.classList.toggle('open', open);
-}
-function closeHMenu(){
-  document.getElementById('hmenu').classList.remove('open');
-  document.getElementById('hmenu-overlay').classList.remove('open');
-}
+
 // ── INIT ──────────────────────────────────────
 function init(){
   loadLS();
@@ -530,9 +510,10 @@ function init(){
   const t=localStorage.getItem('et-theme')||'light';
   document.documentElement.setAttribute('data-theme',t);
   const isDarkInit=t==='dark';
-  document.getElementById('btn-theme').textContent=isDarkInit?'☀️':'🌙';
-  const hmenuThemeInit=document.getElementById('hmenu-theme');
-  if(hmenuThemeInit)hmenuThemeInit.textContent=isDarkInit?'☀️ Svijetli način':'🌙 Tamni način';
+  const iconInit=isDarkInit?'☀️':'🌙';
+  document.getElementById('btn-theme').textContent=iconInit;
+  const mobThemeInit=document.getElementById('btn-theme-mob');
+  if(mobThemeInit)mobThemeInit.textContent=iconInit;
 }
 
 // Siječanj 2026 = prvi obračunski period
@@ -573,13 +554,16 @@ function setupYears(){
   maxM+=1; if(maxM>12){maxM=1;maxY++;}
 
   const ds=document.getElementById('dash-ms');
-  ds.innerHTML='';
+  const dsMob=document.getElementById('dash-ms-mob');
+  ds.innerHTML=''; if(dsMob)dsMob.innerHTML='';
   for(let y=maxY;y>=START_YEAR;y--){
     const startM=(y===maxY)?maxM:12;
-    const endM=(y===START_YEAR)?START_MONTH:1; // Siječanj 2026 uključen
+    const endM=(y===START_YEAR)?START_MONTH:1;
     for(let m=startM;m>=endM;m--){
       const key=`${y}-${m}`;
-      ds.innerHTML+=`<option value="${key}"${key===bestKey?' selected':''}>${MONTHS[m]} ${y}</option>`;
+      const opt=`<option value="${key}"${key===bestKey?' selected':''}>${MONTHS[m]} ${y}</option>`;
+      ds.innerHTML+=opt;
+      if(dsMob)dsMob.innerHTML+=opt;
     }
   }
 }
@@ -626,10 +610,11 @@ function toggleTheme(){
   const n=c==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',n);
   const isDark=n==='dark';
+  const icon=isDark?'☀️':'🌙';
   const themeBtn=document.getElementById('btn-theme');
-  const hmenuTheme=document.getElementById('hmenu-theme');
-  if(themeBtn)themeBtn.textContent=isDark?'☀️':'🌙';
-  if(hmenuTheme)hmenuTheme.textContent=isDark?'☀️ Svijetli način':'🌙 Tamni način';
+  const themeBtnMob=document.getElementById('btn-theme-mob');
+  if(themeBtn)themeBtn.textContent=icon;
+  if(themeBtnMob)themeBtnMob.textContent=icon;
   localStorage.setItem('et-theme',n);
 }
 
@@ -830,6 +815,7 @@ function getAmts(key){
 function renderDashboard(){
   const sel=document.getElementById('dash-ms');if(!sel)return;
   const[y,m]=sel.value.split('-').map(Number);
+  const dsMob=document.getElementById('dash-ms-mob');if(dsMob&&dsMob.value!==sel.value)dsMob.value=sel.value;
   const key=`${y}-${m}`;
   const cons=getCons(key);const amts=getAmts(key);const inv=S.invoices[key];
   document.getElementById('kpi-kwh').textContent=cons?cons.total.toFixed(1):'—';
