@@ -766,7 +766,6 @@ function renderInvoiceP(){
         <div><span style="font-size:.72rem;color:var(--text2)">Period</span><br><strong>${MONTHS[m]} ${y}</strong></div>
         <div><span style="font-size:.72rem;color:var(--text2)">Ukupan račun</span><br><strong class="mn">${inv.amount.toFixed(2)} €</strong></div>
         <div><span style="font-size:.72rem;color:var(--text2)">Ukupna potrošnja</span><br><strong class="mn">${cons.total.toFixed(1)} kWh</strong></div>
-        ${inv.number?`<div><span style="font-size:.72rem;color:var(--text2)">Br. računa</span><br><strong>${inv.number}</strong></div>`:''}
       </div>
       <div class="tw"><table>
         <thead><tr><th>Prostor</th><th>kWh</th><th>Udio</th><th>Za platiti</th><th></th></tr></thead>
