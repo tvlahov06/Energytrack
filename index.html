@@ -1039,7 +1039,7 @@ ${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-
 <div class="footer"><span>EnergyTrack — ${n}</span><span>Generirano: ${new Date().toLocaleDateString('hr-HR')}</span></div>
 <div style="margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center" class="no-print">
   <button onclick="window.print()" style="padding:12px 28px;background:${COLORS[i]};color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📄 Spremi / Pošalji PDF</button>
-  <button onclick="window.close()" style="padding:12px 20px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+  <button onclick="window.close()" style="padding:12px 20px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Zatvori</button>
 </div>
 </body></html>`;
   const spaceName=S.spaces[spaceIdx].toLowerCase().replace(/\s+/g,'_');
@@ -1101,7 +1101,7 @@ ${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-
 <div class="footer"><span>EnergyTrack — automatski generirani izvještaj</span><span>Generirano: ${new Date().toLocaleDateString('hr-HR')}</span></div>
 <div style="margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center" class="no-print">
   <button onclick="window.print()" style="padding:12px 28px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📄 Spremi / Pošalji PDF</button>
-  <button onclick="window.close()" style="padding:12px 20px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+  <button onclick="window.close()" style="padding:12px 20px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Zatvori</button>
 </div>
 </body></html>`;
   const blob=new Blob([html],{type:'text/html'});
