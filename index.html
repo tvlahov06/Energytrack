@@ -718,7 +718,7 @@ function saveInvoice(){
   const key=`${y}-${m}`;
   if(!amount||isNaN(amount)){toast('⚠️ Unesi iznos računa','w');return;}
   // Stanja nisu obavezna za unos računa - može se unijeti i bez njih
-  S.invoices[key]={amount,number:document.getElementById('i-number').value,note:document.getElementById('i-note').value,savedAt:new Date().toISOString()};
+  S.invoices[key]={amount,number:'',note:document.getElementById('i-note').value,savedAt:new Date().toISOString()};
   saveLS();toast('✅ Račun je spremljen!');
   renderInvoiceP();renderHistory();
 }
@@ -747,13 +747,11 @@ function renderInvoiceP(){
   const invNote=document.getElementById('existing-invoice-note');
   if(inv){
     document.getElementById('i-amount').value=inv.amount;
-    document.getElementById('i-number').value=inv.number||'';
     document.getElementById('i-note').value=inv.note||'';
     if(delInvBtn)delInvBtn.style.display='inline-flex';
     if(invNote)invNote.innerHTML=`<div class="al al-i mb16">📝 Postoji uneseni račun za ovaj period. Spremanjem će biti prepisan.</div>`;
   } else {
     document.getElementById('i-amount').value='';
-    document.getElementById('i-number').value='';
     document.getElementById('i-note').value='';
     if(delInvBtn)delInvBtn.style.display='none';
     if(invNote)invNote.innerHTML='';
