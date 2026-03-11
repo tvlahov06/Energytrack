@@ -372,7 +372,6 @@
       <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px;color:var(--text2)">🧾 Račun za odabrani period</h3>
       <div id="existing-invoice-note"></div>
       <div class="fg"><label class="fl">Ukupni iznos računa (EUR)</label><input type="number" class="fi" id="i-amount" placeholder="npr. 450.00 — unesi kad stigne račun" step="0.01" inputmode="decimal" /></div>
-      <div class="fg"><label class="fl">Broj računa (opcionalno)</label><input type="text" class="fi" id="i-number" placeholder="npr. 2024-001" /></div>
       <div class="fg"><label class="fl">Napomena (opcionalno)</label><input type="text" class="fi" id="i-note" placeholder="Posebna napomena..." /></div>
       <div class="mt8" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <button class="btn btn-p" onclick="saveInvoice()">💾 Spremi račun</button>
@@ -384,7 +383,6 @@
     <div class="card" id="inv-preview" style="display:none">
       <div class="sh" style="margin-bottom:14px">
         <h3 style="font-size:.95rem;font-weight:700">📋 Raspodjela troškova</h3>
-        <div id="pdf-buttons" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
       <div id="inv-preview-content"></div>
     </div>
@@ -497,6 +495,7 @@
 
 <script>
 const MONTHS=['','Siječanj','Veljača','Ožujak','Travanj','Svibanj','Lipanj','Srpanj','Kolovoz','Rujan','Listopad','Studeni','Prosinac'];
+const MONTHS_SLUG=['','sijecanj','veljaca','ozujak','travanj','svibanj','lipanj','srpanj','kolovoz','rujan','listopad','studeni','prosinac'];
 const COLORS=['#f59e0b','#3b82f6','#10b981','#8b5cf6','#ef4444'];
 
 let S = {
@@ -762,8 +761,6 @@ function renderInvoiceP(){
   if(inv&&cons&&amts){
     pe.style.display='block';
     // Populate individual PDF buttons per space
-    const pdfBtns=document.getElementById('pdf-buttons');
-    if(pdfBtns) pdfBtns.innerHTML=S.spaces.map((n,i)=>`<button class="btn btn-g bsm" onclick="exportPDFSingle('${key}',${i})" style="border-color:${COLORS[i]};color:${COLORS[i]}">📄 ${n}</button>`).join('');
     ce.innerHTML=`
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding:12px 14px;background:var(--surface2);border-radius:var(--rsm)">
         <div><span style="font-size:.72rem;color:var(--text2)">Period</span><br><strong>${MONTHS[m]} ${y}</strong></div>
@@ -976,7 +973,12 @@ ${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-
   <button onclick="window.close()" style="padding:10px 24px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">← Natrag</button>
 </div>
 </body></html>`;
-  const w=window.open('','_blank');w.document.write(html);w.document.close();setTimeout(()=>w.print(),600);
+  const spaceName=S.spaces[spaceIdx].toLowerCase().replace(/\s+/g,'_');
+  const fileName=`${spaceName}_racun_za_${MONTHS_SLUG[m]}_${y}.html`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
 }
 
 function exportPDFKey(key){
@@ -1032,7 +1034,10 @@ ${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-
   <button onclick="window.close()" style="padding:10px 24px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">← Natrag</button>
 </div>
 </body></html>`;
-  const w=window.open('','_blank');w.document.write(html);w.document.close();setTimeout(()=>w.print(),600);
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  window.open(url,'_blank');
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
 }
 
 // ── GITHUB ────────────────────────────────────
