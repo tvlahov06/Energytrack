@@ -548,6 +548,8 @@ function init(){
   setupYears();
   setNow();
   buildReadingForm();
+  loadExistingReading();
+  syncInvoiceSelects();
   buildSpacesCfg();
   loadGHConfig();
   renderDashboard();
@@ -614,12 +616,20 @@ function setupYears(){
 }
 
 function setNow(){
-  const now=new Date();
-  const m=now.getMonth()+1;
-  // Unos stanja: default na trenutni mjesec (ili Siječanj 2026 ako je ranije)
-  const rm=document.getElementById('r-month');
-  rm.value=m;
-  document.getElementById('i-month').value=m;
+  // Sinkroniziraj r-year/r-month s bestKey odabranim u dash-ms (setupYears)
+  const ds=document.getElementById('dash-ms');
+  if(ds&&ds.value){
+    const[y,m]=ds.value.split('-').map(Number);
+    document.getElementById('r-year').value=y;
+    document.getElementById('r-month').value=m;
+    document.getElementById('i-year').value=y;
+    document.getElementById('i-month').value=m;
+  } else {
+    const now=new Date();
+    const m=now.getMonth()+1;
+    document.getElementById('r-month').value=m;
+    document.getElementById('i-month').value=m;
+  }
 }
 
 // Ograniči odabir na periode od Siječnja 2026 (referentno stanje)
