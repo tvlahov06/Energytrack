@@ -1006,51 +1006,111 @@ function exportPDFSingle(key, spaceIdx){
   const inv=S.invoices[key];const cons=getCons(key);const amts=getAmts(key);
   if(!cons){toast('⚠️ Nema podataka za ovaj period','w');return;}
   const n=S.spaces[spaceIdx];const i=spaceIdx;
+  const REVOLUT_LINK='https://revolut.me/anteiiiii';
+  const amt=amts?amts.a[i].toFixed(2)+' €':'N/A';
   const html=`<!DOCTYPE html><html lang="hr"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;color:#0f172a;padding:40px;font-size:13px;line-height:1.5}
-.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;border-bottom:3px solid ${COLORS[i]};padding-bottom:18px}
-.logo{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;display:flex;align-items:center;gap:9px}
-.li{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:5px 9px;border-radius:7px}
-.hero{text-align:center;padding:32px;background:#f8fafc;border-radius:12px;margin-bottom:24px;border:2px solid ${COLORS[i]}20}
-.pct{font-family:'Space Mono',monospace;font-size:64px;font-weight:700;color:${COLORS[i]};line-height:1}
-.spacename{font-size:22px;font-weight:700;margin-bottom:8px}
-.row{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:13px}
-.row:last-child{border-bottom:none}
-.lbl{color:#64748b}
-.val{font-family:'Space Mono',monospace;font-weight:700}
-.footer{margin-top:28px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between} @media print{.no-print{display:none!important}}
-.bbg{background:#e2e8f0;height:10px;border-radius:5px;margin-top:12px}
-.bfi{height:10px;border-radius:5px;background:${COLORS[i]};width:${cons.pct[i].toFixed(1)}%}
+body{font-family:'IBM Plex Sans',sans-serif;color:#0f172a;background:#fff;font-size:13px;line-height:1.5;max-width:680px;margin:0 auto;padding:0}
+/* HEADER */
+.hdr{padding:28px 36px 22px;border-bottom:3px solid #f59e0b;display:flex;justify-content:space-between;align-items:flex-start}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.logo-text{font-family:'Space Mono',monospace;font-weight:700;font-size:1rem;color:#0f172a}
+.hdr-right{text-align:right;font-size:.78rem;color:#64748b;line-height:1.8}
+.hdr-right strong{display:block;font-size:.95rem;color:#0f172a}
+/* HERO */
+.hero{background:#fffbeb;border-bottom:1px solid #fde68a;padding:22px 36px 18px}
+.hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.hero-left{display:flex;align-items:center;gap:10px}
+.dot{width:12px;height:12px;border-radius:50%;background:${COLORS[i]};flex-shrink:0}
+.space-name{font-size:1.3rem;font-weight:700;color:#0f172a}
+.space-sub{font-size:.75rem;color:#92400e;margin-top:2px}
+.pct-big{font-family:'Space Mono',monospace;font-size:2.8rem;font-weight:700;color:${COLORS[i]};line-height:1}
+.pct-big span{font-size:1.2rem;font-weight:400}
+.bar-bg{height:7px;background:#e2e8f0;border-radius:4px}
+.bar-fg{height:7px;border-radius:4px;background:${COLORS[i]};width:${cons.pct[i].toFixed(1)}%}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#f1f5f9}
+.stat{background:#fff;padding:14px 18px}
+.stat-lbl{font-size:.68rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.stat-val{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;color:#0f172a}
+/* PAY */
+.pay-row{padding:16px 36px;background:#f59e0b;display:flex;justify-content:space-between;align-items:center}
+.pay-lbl{font-size:.78rem;font-weight:600;color:#7c2d12;text-transform:uppercase;letter-spacing:.06em}
+.pay-amt{font-family:'Space Mono',monospace;font-size:1.6rem;font-weight:700;color:#fff}
+/* REVOLUT */
+.revolut{padding:22px 36px;display:flex;align-items:center;gap:24px;border-bottom:1px solid #f1f5f9}
+.qr-wrap{flex-shrink:0}
+.rev-info{flex:1}
+.rev-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:8px}
+.rev-link{display:inline-block;color:#0f172a;font-weight:700;font-size:.95rem;text-decoration:none;border-bottom:2px solid #f59e0b;padding-bottom:2px}
+.rev-hint{font-size:.75rem;color:#94a3b8;margin-top:6px}
+.rev-amount{margin-top:10px;font-size:.82rem;color:#64748b}
+.rev-amount strong{color:#0f172a;font-size:1rem;font-family:'Space Mono',monospace}
+/* NOTE */
+.note{margin:0 36px 16px;padding:10px 14px;background:#fef3c7;border-radius:7px;font-size:.78rem;color:#92400e}
+/* FOOTER */
+.footer{padding:13px 36px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;font-size:.68rem;color:#94a3b8}
+/* BUTTONS */
+.actions{padding:20px 36px;display:flex;gap:10px;justify-content:center}
+@media print{.no-print{display:none!important}}
 </style></head><body>
 <div class="hdr">
-  <div class="logo"><span class="li">⚡</span> EnergyTrack</div>
-  <div style="text-align:right;font-size:12px;color:#64748b">
-    <span>Račun za poslovni prostor</span><br>
-    <strong style="font-size:15px;color:#0f172a">${MONTHS[m]} ${y}</strong>
-    ${inv?.number?`<br><span>Br. računa: ${inv.number}</span>`:''}
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">EnergyTrack</div>
+  </div>
+  <div class="hdr-right">
+    Račun za poslovni prostor<br>
+    <strong>${MONTHS[m]} ${y}</strong>
   </div>
 </div>
 <div class="hero">
-  <div class="spacename">${n}</div>
-  <div class="pct">${cons.pct[i].toFixed(1)}<span style="font-size:32px">%</span></div>
-  <div style="font-size:13px;color:#64748b;margin-top:8px">udio ukupne potrošnje</div>
-  <div class="bbg"><div class="bfi"></div></div>
+  <div class="hero-top">
+    <div class="hero-left">
+      <div class="dot"></div>
+      <div>
+        <div class="space-name">${n}</div>
+        <div class="space-sub">Udio ukupne potrošnje</div>
+      </div>
+    </div>
+    <div class="pct-big" style="color:${COLORS[i]}">${cons.pct[i].toFixed(1)}<span>%</span></div>
+  </div>
+  <div class="bar-bg"><div class="bar-fg"></div></div>
 </div>
-<div style="background:#f8fafc;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;margin-bottom:20px">
-  <div class="row"><span class="lbl">Potrošnja</span><span class="val">${cons.sc[i].toFixed(2)} kWh</span></div>
-  <div class="row"><span class="lbl">Udio</span><span class="val">${cons.pct[i].toFixed(2)}%</span></div>
-  <div class="row"><span class="lbl">Ukupan račun</span><span class="val">${inv?inv.amount.toFixed(2)+' €':'N/A'}</span></div>
-  <div class="row" style="background:${COLORS[i]}15"><span class="lbl" style="font-weight:700">Za platiti</span><span class="val" style="color:${COLORS[i]};font-size:18px">${amts?amts.a[i].toFixed(2)+' €':'N/A'}</span></div>
+<div class="stats">
+  <div class="stat"><div class="stat-lbl">Potrošnja</div><div class="stat-val">${cons.sc[i].toFixed(1)} kWh</div></div>
+  <div class="stat"><div class="stat-lbl">Udio</div><div class="stat-val">${cons.pct[i].toFixed(1)}%</div></div>
+  <div class="stat"><div class="stat-lbl">Ukupan račun</div><div class="stat-val">${inv?inv.amount.toFixed(2)+' €':'—'}</div></div>
 </div>
-${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-size:11px;color:#92400e;margin-bottom:14px">📝 <strong>Napomena:</strong> ${inv.note}</div>`:''}
-<div class="footer"><span>EnergyTrack — ${n}</span><span>Generirano: ${new Date().toLocaleDateString('hr-HR')}</span></div>
-<div style="margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center" class="no-print">
-  <button onclick="window.print()" style="padding:12px 28px;background:${COLORS[i]};color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📄 Spremi / Pošalji PDF</button>
-  <button onclick="window.close()" style="padding:12px 20px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Zatvori</button>
+<div class="pay-row">
+  <div class="pay-lbl">Iznos za platiti</div>
+  <div class="pay-amt">${amt}</div>
 </div>
+<div class="revolut">
+  <div class="qr-wrap"><div id="qr-code"></div></div>
+  <div class="rev-info">
+    <div class="rev-title">Plati putem Revoluta</div>
+    <a class="rev-link" href="${REVOLUT_LINK}" target="_blank">${REVOLUT_LINK.replace('https://','')}</a>
+    <div class="rev-hint">Skenirajte QR kod ili kliknite link za uplatu</div>
+    <div class="rev-amount">Za platiti: <strong>${amt}</strong></div>
+  </div>
+</div>
+${inv?.note?`<div style="height:16px"></div><div class="note">📝 <strong>Napomena:</strong> ${inv.note}</div>`:''}
+<div class="footer">
+  <span>EnergyTrack — ${n}</span>
+  <span>Generirano: ${new Date().toLocaleDateString('hr-HR')}</span>
+</div>
+<div class="actions no-print">
+  <button onclick="window.print()" style="padding:11px 26px;background:${COLORS[i]};color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif">📄 Spremi / Pošalji PDF</button>
+  <button onclick="window.close()" style="padding:11px 20px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif">Zatvori</button>
+</div>
+<script>
+  new QRCode(document.getElementById('qr-code'),{text:'${REVOLUT_LINK}',width:90,height:90,colorDark:'#0f172a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+<\/script>
 </body></html>`;
   const spaceName=S.spaces[spaceIdx].toLowerCase().replace(/\s+/g,'_');
   const fileName=`${spaceName}_racun_za_${MONTHS_SLUG[m]}_${y}`;
