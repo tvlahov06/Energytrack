@@ -251,6 +251,16 @@
     .acc-eur{font-weight:700;font-size:.92rem;}
     .acc-pdf{font-size:.7rem;color:var(--text2);opacity:.7;margin-left:4px;}
     .acc-no-inv{font-size:.75rem;color:var(--text2);font-style:italic;}
+    @media(max-width:600px){
+      .acc-row{flex-direction:column;align-items:flex-start;gap:6px;padding:13px 16px;}
+      .acc-row-left{width:100%;}
+      .acc-row-right{width:100%;justify-content:space-between;padding-left:19px;}
+      .acc-eur{font-size:1rem;}
+      .acc-name{font-size:.95rem;}
+      .acc-hdr{padding:13px 16px;}
+      .acc-period{font-size:1rem;}
+      .acc-meta{gap:10px;font-size:.85rem;}
+    }
     /* ── MOBILE ONLY ── */
     @media(max-width:600px){
       .dash-desktop-actions{display:none!important;}
@@ -952,8 +962,7 @@ function renderHistory(){
       </div>`;
     }).join('');
 
-    // Prvih 2 perioda otvoreni, ostali zatvoreni
-    const isOpen=idx<2;
+    const isOpen=false;
     return `<div class="acc-item${isOpen?' open':''}" id="acc-${key}">
       <div class="acc-hdr" onclick="toggleAcc('${key}')">
         <div style="display:flex;align-items:center;gap:10px">
