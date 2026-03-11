@@ -220,6 +220,37 @@
     .mob-act-btn{padding:0 12px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:.88rem;font-weight:600;cursor:pointer;white-space:nowrap;align-self:stretch;display:flex;align-items:center;}
     .mob-act-btn:active{background:var(--border);}
     .mob-act-btn-primary{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important;}
+
+    /* ── ACCORDION POVIJEST ── */
+    .acc-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);}
+    .acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;user-select:none;transition:background .15s;}
+    .acc-hdr:hover{background:var(--surface2);}
+    .acc-hdr:active{background:var(--border);}
+    .acc-period{font-family:var(--mono);font-weight:700;font-size:.95rem;}
+    .acc-meta{display:flex;gap:16px;align-items:center;font-size:.82rem;color:var(--text2);}
+    .acc-meta span{font-family:var(--mono);}
+    .acc-badge{font-size:.7rem;padding:3px 8px;border-radius:20px;font-weight:700;}
+    .acc-badge-ok{background:#d1fae5;color:#065f46;}
+    .acc-badge-warn{background:#fef3c7;color:#92400e;}
+    [data-theme="dark"] .acc-badge-ok{background:#064e3b;color:#6ee7b7;}
+    [data-theme="dark"] .acc-badge-warn{background:#451a03;color:#fcd34d;}
+    .acc-arrow{font-size:.75rem;color:var(--text2);transition:transform .2s;margin-left:10px;}
+    .acc-item.open .acc-arrow{transform:rotate(180deg);}
+    .acc-body{display:none;border-top:1px solid var(--border);}
+    .acc-item.open .acc-body{display:block;}
+    .acc-row{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+    .acc-row:last-child{border-bottom:none;}
+    .acc-row:hover{background:var(--surface2);}
+    .acc-row:active{background:var(--border);}
+    .acc-row-left{display:flex;align-items:center;gap:10px;}
+    .acc-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+    .acc-name{font-weight:600;font-size:.88rem;}
+    .acc-row-right{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:.82rem;}
+    .acc-kwh{color:var(--text2);}
+    .acc-pct{color:var(--text2);}
+    .acc-eur{font-weight:700;font-size:.92rem;}
+    .acc-pdf{font-size:.7rem;color:var(--text2);opacity:.7;margin-left:4px;}
+    .acc-no-inv{font-size:.75rem;color:var(--text2);font-style:italic;}
     /* ── MOBILE ONLY ── */
     @media(max-width:600px){
       .dash-desktop-actions{display:none!important;}
@@ -406,17 +437,10 @@
       <h1 class="stitle">Povijest</h1>
       <button class="btn btn-s bsm hist-json-btn" onclick="exportAllJSON()" style="display:none!important">📤 Izvezi JSON</button>
     </div>
-    <div class="card">
-      <div class="tw">
-        <table id="hist-table">
-          <thead><tr><th>Period</th><th>Prostor</th><th>Potrošnja</th><th>Udio</th><th>Za platiti</th><th></th></tr></thead>
-          <tbody id="hist-body"></tbody>
-        </table>
-      </div>
-      <div id="hist-empty" class="emp" style="display:none">
-        <div class="ei">📅</div><div class="et">Nema povijest podataka</div>
-        <div class="es">Počnite unosom stanja mjerila na stranici "Unos stanja".</div>
-      </div>
+    <div id="hist-accordion"></div>
+    <div id="hist-empty" class="emp" style="display:none">
+      <div class="ei">📅</div><div class="et">Nema povijest podataka</div>
+      <div class="es">Počnite unosom stanja mjerila.</div>
     </div>
   </div>
 
@@ -895,23 +919,61 @@ function renderChart(){
 
 // ── HISTORY ───────────────────────────────────
 function renderHistory(){
-  const tb=document.getElementById('hist-body'),em=document.getElementById('hist-empty');
-  const keys=Object.keys(S.readings).sort((a,b)=>{const[ay,am]=a.split('-').map(Number),[by,bm]=b.split('-').map(Number);return by*12+bm-(ay*12+am);});
-  if(!keys.length){tb.innerHTML='';em.style.display='block';return;}
+  const acc=document.getElementById('hist-accordion'),em=document.getElementById('hist-empty');
+  const keys=Object.keys(S.readings).sort((a,b)=>{
+    const[ay,am]=a.split('-').map(Number),[by,bm]=b.split('-').map(Number);
+    return by*12+bm-(ay*12+am);
+  }).filter(k=>getCons(k)); // samo zatvoreni periodi
+
+  if(!keys.length){acc.innerHTML='';em.style.display='block';return;}
   em.style.display='none';
-  tb.innerHTML=keys.flatMap(key=>{
+
+  acc.innerHTML=keys.map((key,idx)=>{
     const[y,m]=key.split('-').map(Number);
     const cons=getCons(key);const amts=getAmts(key);const inv=S.invoices[key];
-    if(!cons)return[];
-    return S.spaces.map((n,i)=>`<tr>
-      <td style="white-space:nowrap;font-weight:500">${MONTHS[m]} ${y}</td>
-      <td><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:${COLORS[i]}"></div>${n}</div></td>
-      <td class="mn">${cons.sc[i].toFixed(1)} kWh</td>
-      <td class="mn">${cons.pct[i].toFixed(1)}%</td>
-      <td class="mn" style="font-weight:600">${amts?amts.a[i].toFixed(2)+' €':'—'}</td>
-      <td>${inv?`<button class="btn btn-g bsm" onclick="exportPDFSingle('${key}',${i})">📄 PDF</button>`:'<span style="font-size:.75rem;color:var(--text2)">Bez računa</span>'}</td>
-    </tr>`);
+    const badge=inv
+      ?`<span class="acc-badge acc-badge-ok">✓ Račun</span>`
+      :`<span class="acc-badge acc-badge-warn">Bez računa</span>`;
+    const rows=S.spaces.map((n,i)=>{
+      const eur=amts?`<span class="acc-eur" style="color:${COLORS[i]}">${amts.a[i].toFixed(2)} €</span>`
+                    :`<span class="acc-no-inv">—</span>`;
+      const clickable=inv?`onclick="exportPDFSingle('${key}',${i})" title="Klikni za PDF"`:'' ;
+      const pdfHint=inv?`<span class="acc-pdf">📄</span>`:'';
+      return `<div class="acc-row" ${clickable}>
+        <div class="acc-row-left">
+          <div class="acc-dot" style="background:${COLORS[i]}"></div>
+          <span class="acc-name">${n}</span>
+        </div>
+        <div class="acc-row-right">
+          <span class="acc-kwh">${cons.sc[i].toFixed(1)} kWh</span>
+          <span class="acc-pct">${cons.pct[i].toFixed(1)}%</span>
+          ${eur}${pdfHint}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Prvih 2 perioda otvoreni, ostali zatvoreni
+    const isOpen=idx<2;
+    return `<div class="acc-item${isOpen?' open':''}" id="acc-${key}">
+      <div class="acc-hdr" onclick="toggleAcc('${key}')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="acc-period">${MONTHS[m]} ${y}</span>
+          ${badge}
+        </div>
+        <div class="acc-meta">
+          <span>${cons.total.toFixed(0)} kWh</span>
+          ${inv?`<span>${inv.amount.toFixed(2)} €</span>`:''}
+          <span class="acc-arrow">▼</span>
+        </div>
+      </div>
+      <div class="acc-body">${rows}</div>
+    </div>`;
   }).join('');
+}
+
+function toggleAcc(key){
+  const el=document.getElementById('acc-'+key);
+  if(el)el.classList.toggle('open');
 }
 
 // ── PDF ───────────────────────────────────────
