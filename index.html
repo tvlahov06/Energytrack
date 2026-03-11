@@ -1036,14 +1036,29 @@ body{font-family:'DM Sans',sans-serif;color:#0f172a;padding:40px;font-size:13px;
 </div>
 ${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-size:11px;color:#92400e;margin-bottom:14px">📝 <strong>Napomena:</strong> ${inv.note}</div>`:''}
 <div class="footer"><span>EnergyTrack — ${n}</span><span>Generirano: ${new Date().toLocaleDateString('hr-HR')}</span></div>
-<div style="margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center" class="no-print">
-  <button onclick="window.print()" style="padding:10px 24px;background:${COLORS[i]};color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🖨️ Ispiši / Spremi PDF</button>
-  <button onclick="window.close()" style="padding:10px 24px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">← Natrag</button>
+<div style="margin-top:20px;text-align:center" class="no-print">
+  <button onclick="shareOrDownload()" style="padding:12px 32px;background:${COLORS[i]};color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📤 Pošalji</button>
 </div>
+<script>
+async function shareOrDownload(){
+  const fileName=document.title+'.html';
+  const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
+  const file=new File([blob],fileName,{type:'text/html'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    await navigator.share({files:[file],title:document.title});
+  } else {
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=fileName;
+    a.click();
+  }
+}
+</script>
 </body></html>`;
   const spaceName=S.spaces[spaceIdx].toLowerCase().replace(/\s+/g,'_');
-  const fileName=`${spaceName}_racun_za_${MONTHS_SLUG[m]}_${y}.html`;
-  const blob=new Blob([html],{type:'text/html'});
+  const fileName=`${spaceName}_racun_za_${MONTHS_SLUG[m]}_${y}`;
+  const htmlWithTitle=html.replace('<meta charset="UTF-8">',`<meta charset="UTF-8"><title>${fileName}</title>`);
+  const blob=new Blob([htmlWithTitle],{type:'text/html'});
   const url=URL.createObjectURL(blob);
   const w=window.open(url,'_blank');
   setTimeout(()=>URL.revokeObjectURL(url),10000);
@@ -1097,10 +1112,24 @@ td{padding:11px 13px;border-bottom:1px solid #f1f5f9;font-size:12px}
 </table>
 ${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-size:11px;color:#92400e;margin-bottom:14px">📝 <strong>Napomena:</strong> ${inv.note}</div>`:''}
 <div class="footer"><span>EnergyTrack — automatski generirani izvještaj</span><span>Generirano: ${new Date().toLocaleDateString('hr-HR')}</span></div>
-<div style="margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center" class="no-print">
-  <button onclick="window.print()" style="padding:10px 24px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🖨️ Ispiši / Spremi PDF</button>
-  <button onclick="window.close()" style="padding:10px 24px;background:#f1f5f9;color:#0f172a;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">← Natrag</button>
+<div style="margin-top:20px;text-align:center" class="no-print">
+  <button onclick="shareOrDownload()" style="padding:12px 32px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📤 Pošalji</button>
 </div>
+<script>
+async function shareOrDownload(){
+  const fileName=document.title+'.html';
+  const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
+  const file=new File([blob],fileName,{type:'text/html'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    await navigator.share({files:[file],title:document.title});
+  } else {
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=fileName;
+    a.click();
+  }
+}
+</script>
 </body></html>`;
   const blob=new Blob([html],{type:'text/html'});
   const url=URL.createObjectURL(blob);
