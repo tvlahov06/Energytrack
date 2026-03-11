@@ -541,6 +541,22 @@ let S = {
 
 
 
+
+// ── PDF SHARE ─────────────────────────────────
+async function shareOrDownload(){
+  const fileName=(document.title||'racun')+'.html';
+  const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
+  const file=new File([blob],fileName,{type:'text/html'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    await navigator.share({files:[file],title:document.title});
+  } else {
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=fileName;
+    a.click();
+  }
+}
+
 // ── INIT ──────────────────────────────────────
 function init(){
   loadLS();
@@ -1039,21 +1055,6 @@ ${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-
 <div style="margin-top:20px;text-align:center" class="no-print">
   <button onclick="shareOrDownload()" style="padding:12px 32px;background:${COLORS[i]};color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📤 Pošalji</button>
 </div>
-<script>
-async function shareOrDownload(){
-  const fileName=document.title+'.html';
-  const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
-  const file=new File([blob],fileName,{type:'text/html'});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){
-    await navigator.share({files:[file],title:document.title});
-  } else {
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=fileName;
-    a.click();
-  }
-}
-</script>
 </body></html>`;
   const spaceName=S.spaces[spaceIdx].toLowerCase().replace(/\s+/g,'_');
   const fileName=`${spaceName}_racun_za_${MONTHS_SLUG[m]}_${y}`;
@@ -1115,21 +1116,6 @@ ${inv?.note?`<div style="padding:10px;background:#fef3c7;border-radius:7px;font-
 <div style="margin-top:20px;text-align:center" class="no-print">
   <button onclick="shareOrDownload()" style="padding:12px 32px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📤 Pošalji</button>
 </div>
-<script>
-async function shareOrDownload(){
-  const fileName=document.title+'.html';
-  const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
-  const file=new File([blob],fileName,{type:'text/html'});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){
-    await navigator.share({files:[file],title:document.title});
-  } else {
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=fileName;
-    a.click();
-  }
-}
-</script>
 </body></html>`;
   const blob=new Blob([html],{type:'text/html'});
   const url=URL.createObjectURL(blob);
