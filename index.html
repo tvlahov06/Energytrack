@@ -953,7 +953,7 @@ function renderHistory(){
     const[y,m]=key.split('-').map(Number);
     const cons=getCons(key);const amts=getAmts(key);const inv=S.invoices[key];
     const badge=inv
-      ?`<span class="acc-badge acc-badge-ok">✓ Račun</span>`
+      ?`<span class="acc-badge acc-badge-ok">Račun</span>`
       :`<span class="acc-badge acc-badge-warn">Bez računa</span>`;
     const rows=S.spaces.map((n,i)=>{
       const eur=amts?`<span class="acc-eur" style="color:${COLORS[i]}">${amts.a[i].toFixed(2)} €</span>`
@@ -976,11 +976,9 @@ function renderHistory(){
     const isOpen=false;
     return `<div class="acc-item${isOpen?' open':''}" id="acc-${key}">
       <div class="acc-hdr" onclick="toggleAcc('${key}')">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="acc-period">${MONTHS[m]} ${y}</span>
-          ${badge}
-        </div>
+        <span class="acc-period">${MONTHS[m]} ${y}</span>
         <div class="acc-meta">
+          ${badge}
           <span>${cons.total.toFixed(0)} kWh</span>
           ${inv?`<span>${inv.amount.toFixed(2)} €</span>`:''}
           <span class="acc-arrow">▼</span>
