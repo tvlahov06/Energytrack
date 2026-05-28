@@ -561,6 +561,8 @@ function init(){
   document.getElementById('btn-theme').textContent=iconInit;
   const mobThemeInit=document.getElementById('btn-theme-mob');
   if(mobThemeInit)mobThemeInit.textContent=iconInit;
+  // Auto-sync: tiho povuci podatke s GitHuba pri pokretanju
+  setTimeout(autoSyncFromGitHub, 800);
 }
 
 // Siječanj 2026 = prvi obračunski period
@@ -1214,20 +1216,76 @@ async function testGH(){
   btn.innerHTML='🔗 Testiraj';btn.disabled=false;
 }
 
+// Broji lokalne unose (readings + invoices)
+function countLocalEntries(){
+  return Object.keys(S.readings).length + Object.keys(S.invoices).length;
+}
+
+// Mergeaj GitHub podatke s lokalnim - uzima više podataka
+function mergeGHData(json){
+  let changed=false;
+  if(json.readings){
+    Object.keys(json.readings).forEach(k=>{
+      if(!S.readings[k]){S.readings[k]=json.readings[k];changed=true;}
+    });
+  }
+  if(json.invoices){
+    Object.keys(json.invoices).forEach(k=>{
+      if(!S.invoices[k]){S.invoices[k]=json.invoices[k];changed=true;}
+    });
+  }
+  if(json.spaces&&json.spaces.length)S.spaces=json.spaces;
+  return changed;
+}
+
+async function autoSyncFromGitHub(){
+  const{token,owner,repo,path}=S.github;
+  if(!token||!owner||!repo)return; // nije konfiguriran, preskoči tiho
+  const btn=document.getElementById('btn-sync');
+  if(btn)btn.textContent='⏳';
+  try{
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}});
+    if(!r.ok){if(btn)btn.textContent='☁️';return;}
+    const d=await r.json();
+    const json=JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
+    const ghCount=Object.keys(json.readings||{}).length+Object.keys(json.invoices||{}).length;
+    const localCount=countLocalEntries();
+    if(ghCount>localCount){
+      // GitHub ima više podataka — merge i prikaži
+      mergeGHData(json);
+      saveLS();buildReadingForm();buildSpacesCfg();setupYears();setNow();loadExistingReading();syncInvoiceSelects();renderDashboard();renderHistory();
+      toast('☁️ Podaci ažurirani s GitHuba');
+    }
+  }catch(e){console.warn('Auto-sync greška:',e);}
+  if(btn)btn.textContent='☁️';
+}
+
 async function syncToGitHub(){
   const{token,owner,repo,path}=S.github;
   if(!token||!owner||!repo){toast('⚠️ Postavi GitHub konfiguraciju u Postavkama','w');return;}
   const btn=document.getElementById('btn-sync');btn.textContent='⏳';
-  const content=btoa(unescape(encodeURIComponent(JSON.stringify({readings:S.readings,invoices:S.invoices,spaces:S.spaces},null,2))));
   try{
-    let sha='';
+    // Prvo povuci s GitHuba i mergaj
     const gr=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}});
-    if(gr.ok){const d=await gr.json();sha=d.sha;}
+    let sha='';
+    if(gr.ok){
+      const d=await gr.json();sha=d.sha;
+      const json=JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
+      mergeGHData(json);
+      saveLS();
+    }
+    // Sad pošalji merged podatke na GitHub
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify({readings:S.readings,invoices:S.invoices,spaces:S.spaces},null,2))));
     const pr=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{
       method:'PUT',headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
       body:JSON.stringify({message:`EnergyTrack: update ${new Date().toISOString().slice(0,10)}`,content,sha:sha||undefined})
     });
-    toast(pr.ok?'☁️ Sinkronizirano':'❌ Greška pri sinkronizaciji',pr.ok?'s':'e');
+    if(pr.ok){
+      buildReadingForm();setupYears();setNow();loadExistingReading();syncInvoiceSelects();renderDashboard();renderHistory();
+      toast('☁️ Sinkronizirano');
+    } else {
+      toast('❌ Greška pri sinkronizaciji','e');
+    }
   }catch{toast('❌ Mrežna greška','e');}
   btn.textContent='☁️';
 }
